@@ -13,5 +13,20 @@ public class MaterialInput {
     private int workOrderId;
     private int inputQty;
     private LocalDateTime date;
+
+    public void setProcessNo(int processNo) {
+    }
+
+    public void setMaterialName(String materialName) {
+    }
+
+    public void setInputQuantity(int inputQuantity) {
+    }
+
+    public void setInputDate(LocalDateTime inputDate) {
+    }
+
+    public void setFactoryNo(int factoryNo) {
+    }
 }
 

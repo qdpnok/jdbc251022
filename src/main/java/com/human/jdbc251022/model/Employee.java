@@ -13,4 +13,7 @@ public class Employee {
     private int deptId;
     private int sal;
     private LocalDateTime hireDate;
+
+    public Employee(String empId, String empName, String job, String deptId, int sal) {
+    }
 }
