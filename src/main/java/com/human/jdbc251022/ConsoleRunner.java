@@ -1,6 +1,8 @@
 package com.human.jdbc251022;
 
 import com.human.jdbc251022.dao.MemberDao;
+import com.human.jdbc251022.dao.MgmtDao;
+import com.human.jdbc251022.model.Material;
 import com.human.jdbc251022.model.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -15,6 +17,7 @@ import java.util.Scanner;
 public class ConsoleRunner implements CommandLineRunner {
     private final Scanner sc = new Scanner(System.in);
     private final MemberDao memberDao;
+    private final MgmtDao mgmtDao;
     @Override
     public void run(String... args) throws Exception {
         while (true) {
@@ -108,10 +111,99 @@ public class ConsoleRunner implements CommandLineRunner {
         sc.nextLine();
 
         switch(sel) {
-            case 1: break;
+            case 1: matMgmt(); break;
             case 2: break;
         }
     }
+
+    // 원자재 관리 메뉴
+    private void matMgmt() {
+        System.out.println("===== 원자재 관리 =====");
+        System.out.println("[1]전체 조회");
+        System.out.println("[2]이름으로 검색");
+        System.out.println("[3]원자재 등록");
+        System.out.println("[4]원자재 정보 수정");
+        System.out.println("[5]원자재 삭제");
+        System.out.println("[6]원자재 투입 정보 조회");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: matList(); break;
+            case 2: matNameSearch(); break;
+            case 3: insertMaterial(); break;
+            case 4: updateMaterial(); break;
+            case 5: deleteMaterial(); break;
+            case 6: break;
+
+        }
+    }
+
+    // 원자재 관리 - 전체 조회
+    private void matList() {
+        List<Material> materialList = mgmtDao.matList();
+        if(materialList.isEmpty()) {
+            System.out.println("등록된 원자재가 없습니다.");
+            return;
+        }
+        for(Material e : materialList) System.out.println(e);
+    }
+
+    // 원자재 관리 - 이름 조회
+    private void matNameSearch() {
+        System.out.print("검색할 원자재명 입력: ");
+
+        List<Material> materialList = mgmtDao.matNameList(sc.nextLine());
+        if(materialList.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 원자재가 없습니다.");
+            return;
+        }
+        for(Material e : materialList) System.out.println(e);
+    }
+
+    // 원자재 관리 - 원자재 등록
+    private void insertMaterial() {
+        System.out.print("원자재 id: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("원자재 이름: ");
+        String name = sc.nextLine();
+
+        System.out.print("원자재 type: ");
+        String type = sc.nextLine();
+
+        boolean isSuccess = mgmtDao.insertMaterial(new Material(id, name, type));
+        System.out.println("원자재 등록 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // 원자재 관리 - 원자재 정보 수정
+    private void updateMaterial() {
+        System.out.print("수정할 원자재 id: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("원자재 이름: ");
+        String name = sc.nextLine();
+
+        System.out.print("원자재 type: ");
+        String type = sc.nextLine();
+
+        boolean isSuccess = mgmtDao.updateMaterial(new Material(id, name, type));
+        System.out.println("원자재 정보 수정 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // 원자재 관리 - 원자재 삭제
+    private void deleteMaterial() {
+        System.out.print("삭제할 원자재 id: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        boolean isSuccess = mgmtDao.deleteMaterial(new Material(id, null, null));
+        System.out.println("원자재 삭제 " + (isSuccess ? "성공" : "실패"));
+    }
+
 
     // 성과 관리 - 생산/품질 성과 조회 메뉴
     private void perfMgmt() {
