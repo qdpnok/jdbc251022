@@ -1,7 +1,6 @@
 package com.human.jdbc251022.dao;
 
-import com.human.jdbc251022.model.Employee;
-import com.human.jdbc251022.model.Material;
+import com.human.jdbc251022.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -115,5 +114,96 @@ public class MgmtDao {
         }
     }
 
+    // 배치별 원자재 투입 테이블 조회
+    public List<MaterialInput> mibList() {
+        String query = "SELECT * FROM inventory";
+        return jdbcTemplate.query(query, new MgmtDao.MibRowMapper());
+    }
 
+    // 배치별 원자재 투입 매퍼
+    private static class MibRowMapper implements RowMapper<MaterialInput> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public MaterialInput mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new MaterialInput(
+                    rs.getInt("input_id"),
+                    rs.getInt("batch_id"),
+                    rs.getInt("material_id"),
+                    rs.getInt("workorder_id"),
+                    rs.getInt("input_qty"),
+                    rs.getTimestamp("exp_date").toLocalDateTime()
+            );
+        }
+    }
+
+    // 재고 조회 - 전체
+    public List<Inventory> invtList() {
+        String query = "SELECT * FROM inventory";
+        return jdbcTemplate.query(query, new MgmtDao.InvtRowMapper());
+    }
+
+    // 재고 매퍼
+    private static class InvtRowMapper implements RowMapper<Inventory> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public Inventory mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Inventory(
+                    rs.getInt("invt_id"),
+                    rs.getInt("material_id"),
+                    rs.getInt("ib_id"),
+                    rs.getTimestamp("exp_date").toLocalDateTime(),
+                    rs.getInt("qty"),
+                    rs.getString("loc")
+            );
+        }
+    }
+
+    // 배치 조회 - 전체
+    public List<Batch> batchList() {
+        String query = "SELECT * FROM batch";
+        return jdbcTemplate.query(query, new MgmtDao.BatchRowMapper());
+    }
+
+    // 배치 매퍼
+    private static class BatchRowMapper implements RowMapper<Batch> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public Batch mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Batch(
+                    rs.getInt("batch_id"),
+                    rs.getInt("product_id"),
+                    rs.getInt("unit"),
+                    rs.getString("status"),
+                    rs.getString("note")
+            );
+        }
+    }
+
+    // 원자재 이름으로 위치 조회
+    public List<MaterialLoc> matLocList(String name) {
+        String query = "SELECT invt_id, material_name, qty, loc FROM inventory i JOIN material m ON i.material_id = m.material_id WHERE material_name = ?";
+        return jdbcTemplate.query(query, new MgmtDao.MatLocRowMapper(), name);
+    }
+
+    // 원자재 위치 매퍼
+    private static class MatLocRowMapper implements RowMapper<MaterialLoc> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public MaterialLoc mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new MaterialLoc(
+                    rs.getInt("invt_id"),
+                    rs.getString("material_name"),
+                    rs.getInt("qty"),
+                    rs.getString("loc")
+            );
+        }
+    }
 }

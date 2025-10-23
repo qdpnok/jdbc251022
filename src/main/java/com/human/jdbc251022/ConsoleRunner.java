@@ -2,8 +2,7 @@ package com.human.jdbc251022;
 
 import com.human.jdbc251022.dao.MemberDao;
 import com.human.jdbc251022.dao.MgmtDao;
-import com.human.jdbc251022.model.Material;
-import com.human.jdbc251022.model.Member;
+import com.human.jdbc251022.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -112,7 +111,7 @@ public class ConsoleRunner implements CommandLineRunner {
 
         switch(sel) {
             case 1: matMgmt(); break;
-            case 2: break;
+            case 2: invtBatchMgmt(); break;
         }
     }
 
@@ -135,7 +134,7 @@ public class ConsoleRunner implements CommandLineRunner {
             case 3: insertMaterial(); break;
             case 4: updateMaterial(); break;
             case 5: deleteMaterial(); break;
-            case 6: break;
+            case 6: mibList(); break;
 
         }
     }
@@ -204,6 +203,63 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("원자재 삭제 " + (isSuccess ? "성공" : "실패"));
     }
 
+    // 원자재 관리 - 배치별 원자재 투입 전체 조회
+    private void mibList() {
+        List<MaterialInput> mibList = mgmtDao.mibList();
+        if(mibList.isEmpty()) {
+            System.out.println("등록된 재고가 없습니다.");
+            return;
+        }
+        for(MaterialInput e : mibList) System.out.println(e);
+    }
+
+    // 재고 및 배치 관리 메뉴
+    private void invtBatchMgmt() {
+        System.out.println("===== 재고 및 배치 관리 =====");
+        System.out.println("[1]재고 전체 조회");
+        System.out.println("[2]배치 전체 조회");
+        System.out.println("[3]원자재 위치 조회");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: invtList(); break;
+            case 2: batchList(); break;
+            case 3: matLocList(); break;
+        }
+    }
+
+    // 재고 및 배치 관리 - 재고 전체 조회
+    private void invtList() {
+        List<Inventory> invnetoryList = mgmtDao.invtList();
+        if(invnetoryList.isEmpty()) {
+            System.out.println("등록된 재고가 없습니다.");
+            return;
+        }
+        for(Inventory e : invnetoryList) System.out.println(e);
+    }
+
+    // 재고 및 배치 관리 - 배치 전체 조회
+    private void batchList() {
+        List<Batch> batchList = mgmtDao.batchList();
+        if(batchList.isEmpty()) {
+            System.out.println("등록된 배치가 없습니다.");
+            return;
+        }
+        for(Batch e : batchList) System.out.println(e);
+    }
+
+    // 재고 및 배치 관리 - 원자재명으로 위치 조회
+    private void matLocList() {
+        System.out.print("위치를 검색할 원자재명을 입력: ");
+        List<MaterialLoc> matLocList = mgmtDao.matLocList(sc.nextLine());
+        if(matLocList.isEmpty()) {
+            System.out.println("조회된 결과가 없습니다.");
+            return;
+        }
+        for(MaterialLoc e : matLocList) System.out.println(e);
+    }
 
     // 성과 관리 - 생산/품질 성과 조회 메뉴
     private void perfMgmt() {
