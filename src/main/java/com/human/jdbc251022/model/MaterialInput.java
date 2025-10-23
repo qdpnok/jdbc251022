@@ -6,11 +6,12 @@ import java.time.LocalDateTime;
 
 @Getter @Setter @ToString
 @AllArgsConstructor @NoArgsConstructor
-public class Inventory {
+public class MaterialInput {
     private int id;
+    private int batchId;
     private int materialId;
-    private int ibId;
-    private LocalDateTime expDate;
-    private int qty;
-    private String loc;
+    private int workOrderId;
+    private int inputQty;
+    private LocalDateTime date;
 }
+
