@@ -24,6 +24,7 @@ public class ConsoleRunner implements CommandLineRunner {
             System.out.println("[3]회원 정보 수정");
             System.out.println("[4]회원 삭제");
 
+
             int sel = sc.nextInt();
             sc.nextLine();
 
