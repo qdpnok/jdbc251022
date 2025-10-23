@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 
 @Getter @Setter @ToString
 @AllArgsConstructor @NoArgsConstructor
-public class Inbound {
+public class Outbound {
     private int id;
-    private int matId;
+    private int batchId;
     private int empId;
     private int qty;
-    private LocalDateTime ibDate;
+    private LocalDateTime obDate;
 }

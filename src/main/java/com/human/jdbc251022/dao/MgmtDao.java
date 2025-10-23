@@ -453,30 +453,6 @@ public class MgmtDao {
         }
     }
 
-    // 배치별 원자재 투입 테이블 조회
-    public List<MaterialInput> mibList() {
-        String query = "SELECT * FROM inventory";
-        return jdbcTemplate.query(query, new MgmtDao.MibRowMapper());
-    }
-
-    // 배치별 원자재 투입 매퍼
-    private static class MibRowMapper implements RowMapper<MaterialInput> {
-
-        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
-        // 행 번호로 자동으로 돌아서 Member에 넣어준다
-        @Override
-        public MaterialInput mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new MaterialInput(
-                    rs.getInt("input_id"),
-                    rs.getInt("batch_id"),
-                    rs.getInt("material_id"),
-                    rs.getInt("workorder_id"),
-                    rs.getInt("input_qty"),
-                    rs.getTimestamp("exp_date").toLocalDateTime()
-            );
-        }
-    }
-
     // 재고 조회 - 전체
     public List<Inventory> invtList() {
         String query = "SELECT * FROM inventory";
