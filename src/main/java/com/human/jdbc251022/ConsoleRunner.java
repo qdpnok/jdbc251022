@@ -2,8 +2,7 @@ package com.human.jdbc251022;
 
 import com.human.jdbc251022.dao.MemberDao;
 import com.human.jdbc251022.dao.MgmtDao;
-import com.human.jdbc251022.model.Material;
-import com.human.jdbc251022.model.Member;
+import com.human.jdbc251022.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -112,7 +111,7 @@ public class ConsoleRunner implements CommandLineRunner {
 
         switch(sel) {
             case 1: matMgmt(); break;
-            case 2: break;
+            case 2: invBatchMgmt(); break;
         }
     }
 
@@ -124,7 +123,6 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("[3]원자재 등록");
         System.out.println("[4]원자재 정보 수정");
         System.out.println("[5]원자재 삭제");
-        System.out.println("[6]원자재 투입 정보 조회");
 
         int sel = sc.nextInt();
         sc.nextLine();
@@ -135,7 +133,6 @@ public class ConsoleRunner implements CommandLineRunner {
             case 3: insertMaterial(); break;
             case 4: updateMaterial(); break;
             case 5: deleteMaterial(); break;
-            case 6: break;
 
         }
     }
@@ -202,6 +199,51 @@ public class ConsoleRunner implements CommandLineRunner {
 
         boolean isSuccess = mgmtDao.deleteMaterial(new Material(id, null, null));
         System.out.println("원자재 삭제 " + (isSuccess ? "성공" : "실패"));
+    }
+
+
+    private void invBatchMgmt() {
+        System.out.println("===== 재고 및 배치 관리 =====");
+        System.out.println("[1]재고 조회");
+        System.out.println("[2]배치 조회");
+        System.out.println("[3]원자재 위치 조회");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: invtList(); break;
+            case 2: batchList(); break;
+            case 3: matLocList(); break;
+        }
+    }
+
+    private void invtList() {
+        List<Inventory> invtList = mgmtDao.invtList();
+        if(invtList.isEmpty()) {
+            System.out.println("재고가 없습니다.");
+            return;
+        }
+        for(Inventory e : invtList) System.out.println(e);
+    }
+
+    private void batchList() {
+        List<Batch> batchList = mgmtDao.batchList();
+        if(batchList.isEmpty()) {
+            System.out.println("재고가 없습니다.");
+            return;
+        }
+        for(Batch e : batchList) System.out.println(e);
+    }
+
+    private void matLocList() {
+        System.out.print("위치를 조회할 원자재 이름: ");
+        List<MaterialLoc> matLocList = mgmtDao.matLocList(sc.nextLine());
+        if(matLocList.isEmpty()) {
+            System.out.println("재고가 없습니다.");
+            return;
+        }
+        for(MaterialLoc e : matLocList) System.out.println(e);
     }
 
 
