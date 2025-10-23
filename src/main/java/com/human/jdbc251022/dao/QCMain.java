@@ -101,68 +101,69 @@ public class QCMain {
         }
         return qc;
     }
+}
 
     // -------------------------------------------------------------
     // ⭐ Main 실행 메서드 (원래 QCTestMain 클래스의 내용)
     // -------------------------------------------------------------
-    public static void main(String[] args) {
-        // DAO 역할을 수행하는 QCMainTest 객체 생성
-        QCMainTest qcDao = new QCMainTest();
-        String testQcId = "";
-
-        // 1. QC 등록 (INSERT) 테스트
-        System.out.println("### 1. QC 등록 테스트 (INSERT) ###");
-        QCVO newQc = new QCVO();
-        newQc.setSampleId(300001);
-        newQc.setTestItem("Purity");
-        newQc.setStatus("In Progress");
-        newQc.setPassFail("N/A");
-        newQc.setTester(1006);
-
-        int insertResult = qcDao.insertQC(newQc);
-
-        if (insertResult > 0) {
-            System.out.println("✅ QC 항목 등록 성공. 영향 받은 행 수: " + insertResult);
-            testQcId = "QC0009"; // 테스트를 위해 기존 ID 사용
-        } else {
-            System.out.println("❌ QC 항목 등록 실패.");
-            return;
-        }
-
-        System.out.println("\n" + "---".repeat(15) + "\n");
-
-        // 2. QC 상태 및 완료 날짜 수정 (UPDATE) 테스트
-        System.out.println("### 2. QC 상태/날짜 수정 테스트 (UPDATE) ###");
-        String updateId = "QC0006";
-        String newStatus = "Completed";
-        Date completeDate = new Date();
-
-        int updateResult = qcDao.updateQCStatusAndDate(updateId, newStatus, completeDate);
-
-        if (updateResult > 0) {
-            System.out.println("✅ QC ID: " + updateId + " 상태 및 날짜 수정 성공.");
-        } else {
-            System.out.println("❌ QC ID: " + updateId + " 수정 실패. (ID를 확인하세요)");
-        }
-
-        System.out.println("\n" + "---".repeat(15) + "\n");
-
-        // 3. QC 상세 정보 조회 (SELECT) 테스트
-        System.out.println("### 3. QC 상세 조회 테스트 (SELECT) ###");
-        String selectId = "QC0009";
-        QCVO fetchedQc = qcDao.selectQC(selectId);
-
-        if (fetchedQc != null) {
-            System.out.println("✅ QC ID: " + selectId + " 조회 성공.");
-            System.out.println("   > QC ID: " + fetchedQc.getQcId());
-            System.out.println("   > 샘플 ID: " + fetchedQc.getSampleId());
-            System.out.println("   > 테스트 항목: " + fetchedQc.getTestItem());
-            System.out.println("   > 상태: " + fetchedQc.getStatus());
-            System.out.println("   > 합격/불합격: " + fetchedQc.getPassFail());
-            System.out.println("   > 검사일: " + fetchedQc.getQcDate());
-            System.out.println("   > 담당자 ID: " + fetchedQc.getTester());
-        } else {
-            System.out.println("❌ QC ID: " + selectId + " 조회 실패.");
-        }
-    }
-}
+//    public static void main(String[] args) {
+//        // DAO 역할을 수행하는 QCMainTest 객체 생성
+//        QCMainTest qcDao = new QCMainTest();
+//        String testQcId = "";
+//
+//        // 1. QC 등록 (INSERT) 테스트
+//        System.out.println("### 1. QC 등록 테스트 (INSERT) ###");
+//        QCVO newQc = new QCVO();
+//        newQc.setSampleId(300001);
+//        newQc.setTestItem("Purity");
+//        newQc.setStatus("In Progress");
+//        newQc.setPassFail("N/A");
+//        newQc.setTester(1006);
+//
+//        int insertResult = qcDao.insertQC(newQc);
+//
+//        if (insertResult > 0) {
+//            System.out.println("✅ QC 항목 등록 성공. 영향 받은 행 수: " + insertResult);
+//            testQcId = "QC0009"; // 테스트를 위해 기존 ID 사용
+//        } else {
+//            System.out.println("❌ QC 항목 등록 실패.");
+//            return;
+//        }
+//
+//        System.out.println("\n" + "---".repeat(15) + "\n");
+//
+//        // 2. QC 상태 및 완료 날짜 수정 (UPDATE) 테스트
+//        System.out.println("### 2. QC 상태/날짜 수정 테스트 (UPDATE) ###");
+//        String updateId = "QC0006";
+//        String newStatus = "Completed";
+//        Date completeDate = new Date();
+//
+//        int updateResult = qcDao.updateQCStatusAndDate(updateId, newStatus, completeDate);
+//
+//        if (updateResult > 0) {
+//            System.out.println("✅ QC ID: " + updateId + " 상태 및 날짜 수정 성공.");
+//        } else {
+//            System.out.println("❌ QC ID: " + updateId + " 수정 실패. (ID를 확인하세요)");
+//        }
+//
+//        System.out.println("\n" + "---".repeat(15) + "\n");
+//
+//        // 3. QC 상세 정보 조회 (SELECT) 테스트
+//        System.out.println("### 3. QC 상세 조회 테스트 (SELECT) ###");
+//        String selectId = "QC0009";
+//        QCVO fetchedQc = qcDao.selectQC(selectId);
+//
+//        if (fetchedQc != null) {
+//            System.out.println("✅ QC ID: " + selectId + " 조회 성공.");
+//            System.out.println("   > QC ID: " + fetchedQc.getQcId());
+//            System.out.println("   > 샘플 ID: " + fetchedQc.getSampleId());
+//            System.out.println("   > 테스트 항목: " + fetchedQc.getTestItem());
+//            System.out.println("   > 상태: " + fetchedQc.getStatus());
+//            System.out.println("   > 합격/불합격: " + fetchedQc.getPassFail());
+//            System.out.println("   > 검사일: " + fetchedQc.getQcDate());
+//            System.out.println("   > 담당자 ID: " + fetchedQc.getTester());
+//        } else {
+//            System.out.println("❌ QC ID: " + selectId + " 조회 실패.");
+//        }
+//    }
+//}
