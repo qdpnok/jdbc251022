@@ -540,4 +540,27 @@ public class MgmtDao {
             );
         }
     }
+
+    // QC 결과 조회
+    public List<QCResult> qcResultList() {
+        String query = "SELECT QC_ID, QC.SAMPLE_ID, PASS_FAIL, BATCH_ID, RESULT_ID FROM QC JOIN SAMPLE S ON QC.SAMPLE_ID = S.SAMPLE_ID;";
+        return jdbcTemplate.query(query, new MgmtDao.QCResultRowMapper());
+    }
+
+    // QC 결과 매핑
+    private static class QCResultRowMapper implements RowMapper<QCResult> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public QCResult mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new QCResult(
+                    rs.getInt("QC_ID"),
+                    rs.getInt("QC.SAMPLE_ID"),
+                    rs.getString("PASS_FAIL"),
+                    rs.getInt("BATCH_ID"),
+                    rs.getInt("RESULT_ID")
+            );
+        }
+    }
 }
