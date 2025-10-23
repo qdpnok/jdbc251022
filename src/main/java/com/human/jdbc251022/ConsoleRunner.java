@@ -23,6 +23,7 @@ public class ConsoleRunner implements CommandLineRunner {
             System.out.println("[2]회원 목록 조회");
             System.out.println("[3]회원 정보 수정");
             System.out.println("[4]회원 삭제");
+            // test 입니다.
 
             int sel = sc.nextInt();
             sc.nextLine();
