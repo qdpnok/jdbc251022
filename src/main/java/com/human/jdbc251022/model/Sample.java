@@ -1,7 +1,8 @@
 package com.human.jdbc251022.model;
 
 import lombok.*;
-@Getter @Setter
+@Getter @Setter @ToString
+@AllArgsConstructor @NoArgsConstructor
 
 public class Sample {
 
