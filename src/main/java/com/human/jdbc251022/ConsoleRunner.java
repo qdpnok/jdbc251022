@@ -291,10 +291,8 @@ public class ConsoleRunner implements CommandLineRunner {
     // 입출고 및 자재 관리 메뉴
     private void inOutMatMgmt() {
         System.out.println("===== 입출고 및 자재 관리 (In/Outbound & Material Mgmt) =====");
-        System.out.println("[1]원자재 입고 관리");
-        System.out.println("[2]원자재 출고 관리");
-        System.out.println("[3]완제품 출고 관리");
-
+        System.out.println("[1]입고 관리");
+        System.out.println("[2]출고 관리");
 
         int sel = sc.nextInt();
         sc.nextLine();
@@ -302,13 +300,12 @@ public class ConsoleRunner implements CommandLineRunner {
         switch(sel) {
             case 1: matBatchIn(); break;
             case 2: break;
-            case 3: break;
         }
     }
 
     // 원자재 입고 관리 메뉴
     private void matBatchIn() {
-        System.out.println("===== 원자재 입고 관리 =====");
+        System.out.println("===== 입고 관리 =====");
         System.out.println("[1]입고 조회");
         System.out.println("[2]입고 등록");
         System.out.println("[3]배치 등록");
@@ -379,6 +376,24 @@ public class ConsoleRunner implements CommandLineRunner {
 
         boolean isSuccess = inOutMatMgmt.insertBatch(new Batch(id, prodId, unit, status, note));
         System.out.println("배치 등록 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // 원자재 출고 메뉴
+    private void matOut() {
+        System.out.println("===== 원자재 입고 관리 =====");
+        System.out.println("[1]입고 조회");
+        System.out.println("[2]입고 등록");
+        System.out.println("[3]배치 등록");
+
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: ibList(); break;
+            case 2: insertInbound(); break;
+            case 3: insertBatch(); break;
+        }
     }
 
     // 품질관리 메뉴
