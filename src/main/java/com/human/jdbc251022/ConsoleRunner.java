@@ -1,5 +1,6 @@
 package com.human.jdbc251022;
 
+import com.human.jdbc251022.dao.InOutMatMgmt;
 import com.human.jdbc251022.dao.MemberDao;
 import com.human.jdbc251022.dao.MgmtDao;
 import com.human.jdbc251022.model.*;
@@ -17,6 +18,7 @@ public class ConsoleRunner implements CommandLineRunner {
     private final Scanner sc = new Scanner(System.in);
     private final MemberDao memberDao;
     private final MgmtDao mgmtDao;
+    private final InOutMatMgmt inOutMatMgmt;
     @Override
     public void run(String... args) throws Exception {
         while (true) {
@@ -202,6 +204,7 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
 
+    // 재고 및 배치 관리 메뉴
     private void invBatchMgmt() {
         System.out.println("===== 재고 및 배치 관리 =====");
         System.out.println("[1]재고 조회");
@@ -218,6 +221,7 @@ public class ConsoleRunner implements CommandLineRunner {
         }
     }
 
+    // 재고 및 배치 관리 - 재고 조회
     private void invtList() {
         List<Inventory> invtList = mgmtDao.invtList();
         if(invtList.isEmpty()) {
@@ -227,6 +231,7 @@ public class ConsoleRunner implements CommandLineRunner {
         for(Inventory e : invtList) System.out.println(e);
     }
 
+    // 재고 및 배치 관리 - 배치 조회
     private void batchList() {
         List<Batch> batchList = mgmtDao.batchList();
         if(batchList.isEmpty()) {
@@ -236,6 +241,7 @@ public class ConsoleRunner implements CommandLineRunner {
         for(Batch e : batchList) System.out.println(e);
     }
 
+    // 재고 및 배치 관리 - 원자재 위치 조회
     private void matLocList() {
         System.out.print("위치를 조회할 원자재 이름: ");
         List<MaterialLoc> matLocList = mgmtDao.matLocList(sc.nextLine());
@@ -303,8 +309,8 @@ public class ConsoleRunner implements CommandLineRunner {
     // 원자재 입고 관리 메뉴
     private void matBatchIn() {
         System.out.println("===== 원자재 입고 관리 =====");
-        System.out.println("[1]원자재 입고 조회");
-        System.out.println("[2]원자재 입고 등록");
+        System.out.println("[1]입고 조회");
+        System.out.println("[2]입고 등록");
         System.out.println("[3]배치 등록");
 
 
@@ -312,10 +318,67 @@ public class ConsoleRunner implements CommandLineRunner {
         sc.nextLine();
 
         switch(sel) {
-            case 1: break;
-            case 2: break;
-            case 3: break;
+            case 1: ibList(); break;
+            case 2: insertInbound(); break;
+            case 3: insertBatch(); break;
         }
+    }
+
+    // 재고 및 배치 관리 - 입고 조회
+    private void ibList() {
+        List<Inbound> ibList = inOutMatMgmt.ibList();
+        if(ibList.isEmpty()) {
+            System.out.println("재고가 없습니다.");
+            return;
+        }
+        for(Inbound e : ibList) System.out.println(e);
+    }
+
+    // 재고 및 배치 관리 - 입고 등록
+    private void insertInbound() {
+        System.out.print("입고 번호: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("원자재 번호: ");
+        int matId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("사원 번호: ");
+        int empId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("수량: ");
+        int qty = sc.nextInt();
+        sc.nextLine();
+
+        boolean isSuccess = inOutMatMgmt.insertInbound(new Inbound(id, matId, empId, qty, null));
+        System.out.println("입고 등록 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // 재고 및 배치 관리 - 배치 등록
+    private void insertBatch() {
+        System.out.print("배치 번호: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("완제품 번호: ");
+        int prodId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("단위: ");
+        int unit = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("상태: ");
+        String status = sc.nextLine();
+        sc.nextLine();
+
+        System.out.print("비고: ");
+        String note = sc.nextLine();
+
+        boolean isSuccess = inOutMatMgmt.insertBatch(new Batch(id, prodId, unit, status, note));
+        System.out.println("배치 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
     // 품질관리 메뉴
