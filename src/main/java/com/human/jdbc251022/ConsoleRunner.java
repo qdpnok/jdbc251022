@@ -18,11 +18,11 @@ public class ConsoleRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         while (true) {
-            System.out.println("===== 콘솔 회원 관리 시스템 =====");
-            System.out.println("[1]회원 등록");
-            System.out.println("[2]회원 목록 조회");
-            System.out.println("[3]회원 정보 수정");
-            System.out.println("[4]회원 삭제");
+            System.out.println("===== 시스템/홈 =====");
+            System.out.println("[1]관리 (Management)");
+            System.out.println("[2]생산/작업 (Production/Work)");
+            System.out.println("[3]입출고 및 자재 관리 (In/Outbound & Material Mgmt)");
+            System.out.println("[4]품질 관리 (Quality Control - QC)");
 
 
             int sel = sc.nextInt();
@@ -31,23 +31,10 @@ public class ConsoleRunner implements CommandLineRunner {
             boolean isSuccess;
 
             switch (sel) {
-                case 1:
-                    isSuccess = memberDao.insertMember(regMember());
-                    System.out.println("회원 가입 " + (isSuccess ? "성공" : "실패"));
-                    break;
-                case 2:
-                    List<Member> memberList = memberDao.memberList();
-                    System.out.println("===== 회원 목록 조회 =====");
-                    for(Member member : memberList) System.out.println(member);
-                    break;
-                case 3:
-                    isSuccess = memberDao.updateMember(editMember());
-                    System.out.println("정보 수정 " + (isSuccess ? "성공" : "실패"));
-                    break;
-                case 4:
-                    isSuccess = memberDao.deleteMember(unSign());
-                    System.out.println("회원 삭제 " + (isSuccess ? "성공" : "실패"));
-                    break;
+                case 1: mgmt(); break;
+                case 2: prodWork(); break;
+                case 3: inOutMatMgmt(); break;
+                case 4: qc(); break;
             }
         }
     }
@@ -77,4 +64,142 @@ public class ConsoleRunner implements CommandLineRunner {
 
         return sc.nextLine();
     }
+
+    // 관리 메뉴
+    private void mgmt() {
+        System.out.println("===== 관리 (Management) =====");
+        System.out.println("[1]인사/조직 관리");
+        System.out.println("[2]원자재/재고 관리");
+        System.out.println("[3]성과 관리");
+
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: hrOrgMgmt(); break;
+            case 2: matInvMgmt(); break;
+            case 3: perfMgmt(); break;
+        }
+    }
+
+    // 인사/조직 관리 메뉴
+    private void hrOrgMgmt() {
+        System.out.println("===== 인사/조직 관리 =====");
+        System.out.println("[1]사원 정보 관리");
+        System.out.println("[2]부서 및 공정 관리");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: break;
+            case 2: break;
+        }
+    }
+
+    // 원자재/재고 관리 메뉴
+    private void matInvMgmt() {
+        System.out.println("===== 원자재/재고 관리 =====");
+        System.out.println("[1]원자재 관리");
+        System.out.println("[2]재고 및 배치 관리");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: break;
+            case 2: break;
+        }
+    }
+
+    // 성과 관리 - 생산/품질 성과 조회 메뉴
+    private void perfMgmt() {
+        System.out.println("===== 성과 관리 =====");
+        System.out.println("[1]QC 결과 조회");
+        System.out.println("[2]생산성 조회");
+        System.out.println("[2]효율 정보 모니터링");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: break;
+            case 2: break;
+            case 3: break;
+        }
+    }
+
+    // 생산/작업 메뉴
+    private void prodWork() {
+        System.out.println("===== 생산/작업 (Production/Work) =====");
+        System.out.println("[1]작업 지시 및 배정");
+        System.out.println("[2]작업 실적 입력");
+        System.out.println("[3]생산 자재 투입");
+
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: break;
+            case 2: break;
+            case 3: break;
+        }
+    }
+
+    // 입출고 및 자재 관리 메뉴
+    private void inOutMatMgmt() {
+        System.out.println("===== 입출고 및 자재 관리 (In/Outbound & Material Mgmt) =====");
+        System.out.println("[1]원자재 입고 관리");
+        System.out.println("[2]원자재 출고 관리");
+        System.out.println("[3]완제품 출고 관리");
+
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: matBatchIn(); break;
+            case 2: break;
+            case 3: break;
+        }
+    }
+
+    // 원자재 입고 관리 메뉴
+    private void matBatchIn() {
+        System.out.println("===== 원자재 입고 관리 =====");
+        System.out.println("[1]원자재 입고 조회");
+        System.out.println("[2]원자재 입고 등록");
+        System.out.println("[3]배치 등록");
+
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: break;
+            case 2: break;
+            case 3: break;
+        }
+    }
+
+    // 품질관리 메뉴
+    private void qc() {
+        System.out.println("===== 품질 관리 (Quality Control - QC) =====");
+        System.out.println("[1]QC 테스트 관리");
+        System.out.println("[2]샘플 관리");
+        System.out.println("[3]검사 결과 등록/조회");
+
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: matBatchIn(); break;
+            case 2: break;
+            case 3: break;
+        }
+    }
+
 }
