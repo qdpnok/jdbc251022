@@ -19,12 +19,12 @@ public class MgmtDao {
     private final JdbcTemplate jdbcTemplate;
 
     // 사원 전체 조회
-    public List<Employee> empList(Employee employee) {
-        String query = "SELECT * FROM employee";
-        return jdbcTemplate.query(query, new MgmtDao.EmpRowMapper());
+    public List<Employee> listEmployee() {
+        String query = "SELECT * FROM Employee ORDER BY EMP_ID";
+        return jdbcTemplate.query(query, new EmpRowMapper());
     }
 
-    private static class EmpRowMapper implements RowMapper<Employee> {
+    static class EmpRowMapper implements RowMapper<Employee> {
 
         // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
         // 행 번호로 자동으로 돌아서 Member에 넣어준다
@@ -42,21 +42,16 @@ public class MgmtDao {
     }
 
     // 사원 조회 (단건)
-    public Employee getEmployee(String empId) {
+    public Employee getEmployee(int id) {
         String query = "SELECT * FROM Employee WHERE EMP_ID = ?";
         try {
-            return jdbcTemplate.queryForObject(query,
-                    (rs, rowNum) -> new Employee(
-                            rs.getString("emp_id"),
-                            rs.getString("emp_name"),
-                            rs.getString("job"),
-                            rs.getString("dept_id"),
-                            rs.getInt("sal")));
+            return jdbcTemplate.queryForObject(query, new EmpRowMapper(), id);
         } catch (Exception e) {
             log.error("사원 조회 실패: {}", e.getMessage());
             return null;
         }
     }
+
     // 사원 정보 등록
     public boolean insertEmployee(Employee employee) {
         int result = 0;
@@ -68,8 +63,7 @@ public class MgmtDao {
                     employee.getName(), employee.getJob(), employee.getDeptId(), employee.getSal());
 
         } catch (Exception e) {
-            // 로그 메시지. lombok에서 제공함.
-            log.error("사원 정보 추가 실패 : {}", e.getMessage());
+            log.error("사원 정보 등록 실패 : {}", e.getMessage());
         }
         return result > 0;
     }
@@ -90,17 +84,15 @@ public class MgmtDao {
     }
 
     // 사원 삭제
-    public boolean deleteEmployee(String empid) {
-        int result = 0;
-        String query = "DELETE FROM Employee WHERE empid = ?";
+    public boolean deleteEmployee(int empId) {
+        String query = "DELETE FROM Employee WHERE EMP_ID = ?";
         try {
-            result = jdbcTemplate.update(query, empid);
-
+            int result = jdbcTemplate.update(query, empId);
+            return result > 0;  // 삭제된 행이 있으면 true 반환
         } catch (Exception e) {
-            // 로그 메시지. lombok에서 제공함.
             log.error("사원 삭제 실패 : {}", e.getMessage());
+            return false;
         }
-        return result > 0;
     }
 
     // 부서 등록
@@ -135,7 +127,8 @@ public class MgmtDao {
         SELECT d.*
         FROM Department d
         JOIN Employee e ON d.DEPT_ID = e.DEPT_ID
-        WHERE e.EMP_ID = ?,""";
+        WHERE e.EMP_ID = ?
+        """;
         try {
             return jdbcTemplate.queryForObject(query, new DeptRowMapper(), empId);
         } catch (Exception e) {
@@ -169,10 +162,10 @@ public class MgmtDao {
     }
 
     // 부서별 담당자 지정
-    public boolean assignManagerToDept(int deptId, String manager) {
+    public boolean assignManagerToDept(int deptId, int empId) {
         String query = "UPDATE Department SET MANAGER = ? WHERE DEPT_ID = ?";
         try {
-            int result = jdbcTemplate.update(query, manager, deptId);
+            int result = jdbcTemplate.update(query, empId, deptId);
             return result > 0;
         } catch (Exception e) {
             log.error("부서 담당자 지정 실패 : {}", e.getMessage());
@@ -189,6 +182,12 @@ public class MgmtDao {
             log.error("부서별 담당자 조회 실패 : {}", e.getMessage());
             return null;
         }
+    }
+    public Department getDepartment(int deptId) {
+        return null;
+    }
+    public Employee getManager(int deptId) {
+        return null;
     }
 
     // 생산일 등록
@@ -444,30 +443,6 @@ public class MgmtDao {
                     rs.getInt("material_id"),
                     rs.getString("material_name"),
                     rs.getString("type")
-            );
-        }
-    }
-
-    // 배치별 원자재 투입 테이블 조회
-    public List<MaterialInput> mibList() {
-        String query = "SELECT * FROM inventory";
-        return jdbcTemplate.query(query, new MgmtDao.MibRowMapper());
-    }
-
-    // 배치별 원자재 투입 매퍼
-    private static class MibRowMapper implements RowMapper<MaterialInput> {
-
-        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
-        // 행 번호로 자동으로 돌아서 Member에 넣어준다
-        @Override
-        public MaterialInput mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new MaterialInput(
-                    rs.getInt("input_id"),
-                    rs.getInt("batch_id"),
-                    rs.getInt("material_id"),
-                    rs.getInt("workorder_id"),
-                    rs.getInt("input_qty"),
-                    rs.getTimestamp("exp_date").toLocalDateTime()
             );
         }
     }
