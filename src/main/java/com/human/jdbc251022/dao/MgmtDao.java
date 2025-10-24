@@ -540,19 +540,19 @@ public class MgmtDao {
     }
 
     // 생산성 조회 - 전체
-    public List<Result> resultList() {
-        String query = "SELECT * FROM Result";
-        return jdbcTemplate.query(query, new MgmtDao.ResultRowMapper());
+    public List<PrdResult> prdList() {
+        String query = "SELECT * FROM PrdResult";
+        return jdbcTemplate.query(query, new MgmtDao.PrdResultRowMapper());
     }
 
     // 생산성 매퍼
-    private static class ResultRowMapper implements RowMapper<Result> {
+    private static class PrdResultRowMapper implements RowMapper<PrdResult> {
 
         // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
         // 행 번호로 자동으로 돌아서 Member에 넣어준다
         @Override
-        public Result mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Result(
+        public PrdResult mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new PrdResult(
                     rs.getInt("RESULT_ID"),
                     rs.getInt("PQTY"),
                     rs.getInt("WQTY"),

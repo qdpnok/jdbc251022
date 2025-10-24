@@ -1,7 +1,8 @@
 package com.human.jdbc251022.dao;
 
-import com.human.jdbc251022.model.Employee;
 import com.human.jdbc251022.model.QCVO;
+import com.human.jdbc251022.model.PrdResult;
+import com.human.jdbc251022.model.ResultQC;
 import com.human.jdbc251022.model.Sample;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +107,7 @@ public class QCDao {
 
 
     // Sample 전체 조회
-    public List<Sample> sampleList(Sample sample) {
+    public List<Sample> sampleList() {
         String query = "SELECT * FROM Sample";
         return jdbcTemplate.query(query, new QCDao.SampleMapper());
     }
@@ -119,7 +120,7 @@ public class QCDao {
                     rs.getInt("SAMPLE_ID"),
                     rs.getInt("BATCH_ID"),
                     rs.getInt("RESULT_ID"),
-                    rs.getInt("SAMPLE_DATE")
+                    String.valueOf(rs.getInt("SAMPLE_DATE"))
             );
         }
     }
@@ -133,7 +134,7 @@ public class QCDao {
                             rs.getInt("SAMPLE_ID"),
                             rs.getInt("BATCH_ID"),
                             rs.getInt("RESULT_ID"),
-                            rs.getInt("SAMPLE_DATE")));
+                            String.valueOf(rs.getInt("SAMPLE_DATE"))));
         } catch (Exception e) {
             log.error("Sample 조회 실패: {}", e.getMessage());
             return null;
@@ -186,6 +187,45 @@ public class QCDao {
         return result > 0;
     }
 
+    // Result 전체 조회
+    public List<ResultQC> resultList() {
+        String query = "SELECT * FROM ResultQC";
+        return jdbcTemplate.query(query, new QCDao.ResultMapper());
+    }
 
+    private static class ResultMapper implements RowMapper<ResultQC> {
+
+        @Override
+        public ResultQC mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new ResultQC(
+                    rs.getInt("RESULT_ID"),
+                    rs.getInt("PQTY"),
+                    rs.getInt(" WQTY"),
+                    rs.getDouble(" PE"),
+                    rs.getString(" PROCESS_ID"),
+                    rs.getString(" EMP_ID"),
+                    String.valueOf(rs.getInt("PRODUCTION_DATE"))
+            );
+        }
+    }
+
+    // Result 조회 (단건)
+    public ResultQC getResult(int resultId) {
+        String query = "SELECT * FROM ResultQC WHERE RESULT_ID = ?";
+        try {
+            return jdbcTemplate.queryForObject(query,
+                    (rs, rowNum) -> new ResultQC(
+                            rs.getInt("RESULT_ID"),
+                            rs.getInt("PQTY"),
+                            rs.getInt(" WQTY"),
+                            rs.getDouble(" PE"),
+                            rs.getString(" PROCESS_ID"),
+                            rs.getString(" EMP_ID"),
+                            String.valueOf(rs.getInt("PRODUCTION_DATE"))));
+        } catch (Exception e) {
+            log.error("Sample 조회 실패: {}", e.getMessage());
+            return null;
+        }
+    }
 
 }

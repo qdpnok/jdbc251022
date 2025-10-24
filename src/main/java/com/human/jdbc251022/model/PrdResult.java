@@ -7,7 +7,7 @@ import lombok.*;
 @Getter @Setter @ToString
 @AllArgsConstructor @NoArgsConstructor
 
-public class Result {
+public class PrdResult {
     private int resultId;
 
     // 실제 생산량 (PQTY)
