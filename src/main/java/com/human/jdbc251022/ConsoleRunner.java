@@ -43,7 +43,7 @@ public class ConsoleRunner implements CommandLineRunner {
                 case 1: mgmt(); break;
                 case 2: prodWork(); break;
                 case 3: inOutMatMgmt(); break;
-                case 4: qc(); break;
+                case 4: QC(); break;
             }
         }
     }
