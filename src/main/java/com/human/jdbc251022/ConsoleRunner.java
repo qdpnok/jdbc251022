@@ -228,13 +228,13 @@ public class ConsoleRunner implements CommandLineRunner {
             int sel = sc.nextInt();
             sc.nextLine();
             switch (sel) {
-                case 1: insertWork();
+                case 1: insertWork(); break;
                 case 2: listWorks();
-                case 3: insertWorkOrder();
-                case 4: updateWorkResult();
-                case 5: deleteWork();
-                case 6: listMaterialInputsByProcess();
-                case 7: totalMaterialInputByName();
+                case 3: insertWorkOrder(); break;
+                case 4: updateWorkResult(); break;
+                case 5: deleteWork(); break;
+                case 6: listMaterialInputsByProcess(); break;
+                case 7: totalMaterialInputByName(); break;
                 case 0: { return; }
                 default: System.out.println("잘못된 선택입니다.");
             }
@@ -260,6 +260,7 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
     private void listWorks() {
+        System.out.println("\n[작업 목록 조회]");
         List<Work> list = mgmtDao.getAllWorks();
         if (list.isEmpty()) System.out.println("작업 없음");
         else list.forEach(System.out::println);
@@ -267,40 +268,76 @@ public class ConsoleRunner implements CommandLineRunner {
 
     private void insertWorkOrder() {
         System.out.println("\n[작업 지시 등록]");
-        System.out.print("공정번호: "); int process = 0; sc.nextInt();
-        System.out.print("작업내용: ");int order = sc.nextInt();
-        System.out.print("담당자: "); int assigned = sc.nextInt();
-        sc.nextLine();
-        Work w = new Work();
-        w.setProcessNo(process);
-        w.setWorkId(order);
-        w.setAssignedTo(assigned);
-        w.setStartTime(LocalDateTime.now());
-        boolean ok = mgmtDao.insertWorkOrder(w);
-        System.out.println(ok ? "지시 완료" : "등록 실패");
+
+        try {
+            System.out.print("작업지시 ID: ");
+            int workOrderId = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("공정번호 (PROCESS_ID): ");
+            int processId = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("배치번호 (BATCH_ID): ");
+            int batchId = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("수량 (QTY): ");
+            int qty = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("시작일 (예: 2025-09-10): ");
+            String start = sc.nextLine();
+            LocalDateTime startDate = LocalDateTime.parse(start + "T00:00");
+
+            System.out.print("종료일 (예: 2025-09-12): ");
+            String end = sc.nextLine();
+            LocalDateTime endDate = LocalDateTime.parse(end + "T00:00");
+
+            System.out.print("작업자 ID (WORKER): ");
+            int worker = sc.nextInt();
+            sc.nextLine();
+
+            // Work 객체에 값 대입
+            Work w = new Work();
+            w.setWorkId(workOrderId);
+            w.setProcessNo(processId);
+            w.setBatchInput(String.valueOf(batchId));  // 문자열로 저장
+            w.setInputQuantity(qty);
+            w.setStartTime(startDate);
+            w.setEndTime(endDate);
+            w.setAssignedTo(Integer.parseInt(String.valueOf(worker)));   // 담당자(사원 ID)
+            w.setResult("지시됨");
+
+            boolean ok = mgmtDao.insertWorkOrder(w);
+            System.out.println(ok ? "작업 지시 완료!" : "작업 지시 실패!");
+
+        } catch (Exception e) {
+            System.out.println("입력 오류: " + e.getMessage());
+        }
     }
 
     private void updateWorkResult() {
         System.out.print("\n수정할 작업 ID ▶ ");
         int id = 0; sc.nextInt();
         sc.nextLine();
-        System.out.print("결과(완료/취소/진행중): "); String res = sc.nextLine().trim();
+        System.out.print("결과(완료/취소/진행중): "); String res = sc.nextLine();
         System.out.print("종료시간(예:2025-10-24T18:00): ");
-        LocalDateTime end = LocalDateTime.parse(sc.nextLine().trim());
+        LocalDateTime end = LocalDateTime.parse(sc.nextLine());
         boolean ok = mgmtDao.updateWorkResult(id, res, end);
         System.out.println(ok ? "수정 완료" : "수정 실패");
     }
 
     private void deleteWork() {
-        System.out.print("\n삭제할 작업 ID ▶ ");
+        System.out.print("\n삭제할 작업 ID : ");
         int id = 0; sc.nextInt();
         sc.nextLine();
         boolean ok = mgmtDao.deleteWork(id);
-        System.out.println(ok ? "삭제 성공" : "실패");
+        System.out.println(ok ? "삭제 성공" : "삭제 실패");
     }
 
     private void listMaterialInputsByProcess() {
-        System.out.print("\n공정 번호 ▶ ");
+        System.out.print("\n공정 번호 : ");
         int process = 0; sc.nextInt();
         sc.nextLine();
         List<MaterialInput> list = mgmtDao.getMaterialInputsByProcess(process);

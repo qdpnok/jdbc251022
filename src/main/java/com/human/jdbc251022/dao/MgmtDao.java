@@ -194,7 +194,9 @@ public class MgmtDao {
     // 작업 등록
     public boolean insertWork(Process work) {
         String sql = """
-        INSERT INTO Process (PROCESS_ID, PROCESS_NAME, PRODUCT_ID) VALUES (?, ?, ?)""";
+        INSERT INTO Process
+        (PROCESS_ID, PROCESS_NAME, PRODUCT_ID)
+        VALUES (?, ?, ?)""";
         try {
             int result = jdbcTemplate.update(sql,
                     work.getPROCESS_ID(),          // 작업 번호, ID
@@ -215,36 +217,44 @@ public class MgmtDao {
         return jdbcTemplate.query(sql, new MgmtDao.WorkRowMapper());
     }
     private static class WorkRowMapper implements RowMapper<Work> {
-
-        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
-        // 행 번호로 자동으로 돌아서 Member에 넣어준다
         @Override
         public Work mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Work(
-                    rs.getInt("WORKORDER_ID"),
-                    rs.getInt("PROCESS_ID"),
-                    rs.getInt("BATCH_ID"),
-                    rs.getInt("QTY"),
-                    rs.getInt("WORKER"),
-                    rs.getTimestamp("START_DATE").toLocalDateTime(),
-                    rs.getTimestamp("END_DATE").toLocalDateTime()
-            );
+            Work w = new Work();
+            w.setWorkId(rs.getInt("WORK_ID"));
+            w.setProcessNo(rs.getInt("PROCESS_NO"));
+            w.setWorkOrder(rs.getString("WORK_ORDER"));
+            w.setAssignedTo(Integer.parseInt(rs.getString("WORKER")));
+
+            // NULL 방지 처리 (Timestamp → LocalDateTime)
+            if (rs.getTimestamp("START_TIME") != null)
+                w.setStartTime(rs.getTimestamp("START_TIME").toLocalDateTime());
+            if (rs.getTimestamp("END_TIME") != null)
+                w.setEndTime(rs.getTimestamp("END_TIME").toLocalDateTime());
+
+            w.setResult(rs.getString("RESULT"));
+            w.setBatchInput(rs.getString("BATCH_INPUT"));
+            w.setMaterialInput(rs.getString("MATERIAL_INPUT"));
+            w.setInputQuantity(rs.getInt("INPUT_QUANTITY"));
+            return w;
         }
     }
+
 
     // 작업 지시 및 배정
     public boolean insertWorkOrder(Work work) {
         String sql = """
-        INSERT INTO Work (PROCESS_NO, WORK_ORDER, ASSIGNED_TO, START_TIME, RESULT)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO Work (WORKORDER_ID, PROCESS_ID, BATCH_ID, QTY, START_DATE, END_DATE, WORKER)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
         try {
             int result = jdbcTemplate.update(sql,
-                    work.getProcessNo(),
                     work.getWorkId(),
-                    work.getAssignedTo(),
-                    work.getStartTime(),      // 작업 시작 시간
-                    "지시됨"                   // 기본 상태 : 지시됨
+                    work.getProcessNo(),
+                    work.getBatchId(),
+                    work.getQty(),
+                    work.getStartTime(),
+                    work.getEndTime(),
+                    work.getAssignedTo()
             );
             return result > 0;
         } catch (Exception e) {
