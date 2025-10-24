@@ -318,7 +318,7 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
     // 생산 품질 성과 조회
-    private void PerfMgmt() {
+    private void perfMgmt() {
         System.out.println("===== 생산/품질 성과 조회  =====");
         System.out.println("[1]QC 결과 조회");
         System.out.println("[2]생산성 조회");
@@ -519,22 +519,6 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
 
-    // 성과 관리 - 생산/품질 성과 조회 메뉴
-    private void perfMgmt() {
-        System.out.println("===== 성과 관리 =====");
-        System.out.println("[1]QC 결과 조회");
-        System.out.println("[2]생산성 조회");
-        System.out.println("[2]효율 정보 모니터링");
-
-        int sel = sc.nextInt();
-        sc.nextLine();
-
-        switch(sel) {
-            case 1: break;
-            case 2: break;
-            case 3: break;
-        }
-    }
 
     // 입출고 및 자재 관리 메뉴
     private void inOutMatMgmt() {
