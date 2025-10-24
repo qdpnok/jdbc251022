@@ -30,7 +30,7 @@ public class InOutMatMgmt {
         @Override
         public Inbound mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Inbound(
-                    rs.getInt("id_id"),
+                    rs.getInt("ib_id"),
                     rs.getInt("material_id"),
                     rs.getInt("emp_id"),
                     rs.getInt("qty"),

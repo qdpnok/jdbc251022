@@ -299,7 +299,7 @@ public class ConsoleRunner implements CommandLineRunner {
 
         switch(sel) {
             case 1: matBatchIn(); break;
-            case 2: break;
+            case 2: matOut(); break;
         }
     }
 
