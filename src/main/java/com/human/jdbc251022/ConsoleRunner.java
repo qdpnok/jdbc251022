@@ -319,8 +319,9 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.print("원자재 이름: ");
         String name = sc.nextLine();
 
-        System.out.print("원자재 type: ");
-        String type = sc.nextLine();
+        System.out.print("원자재 type [1] 원료 [2] 자재: ");
+        String type = (sc.nextInt() == 1 ? "원료" : "자재");
+        sc.nextLine();
 
         boolean isSuccess = mgmtDao.insertMaterial(new Material(0, name, type));
         System.out.println("원자재 등록 " + (isSuccess ? "성공" : "실패"));
@@ -508,11 +509,18 @@ public class ConsoleRunner implements CommandLineRunner {
         int unit = sc.nextInt();
         sc.nextLine();
 
-        System.out.print("상태: ");
-        String status = sc.nextLine();
+        System.out.print("상태 [1] 대기 [2] 진행중 [3] 완료: ");
+        int statusCode = sc.nextInt();
         sc.nextLine();
+        String status;
+        switch(statusCode) {
+            case 1: status = "대기"; break;
+            case 2: status = "진행중"; break;
+            case 3: status = "완료"; break;
+            default: System.out.println("상태 코드 입력 오류"); return;
+        }
 
-        System.out.print("비고: ");
+        System.out.print("메모: ");
         String note = sc.nextLine();
 
         boolean isSuccess = inOutMatMgmt.insertBatch(new Batch(0, prodId, unit, status, note));

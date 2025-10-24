@@ -42,7 +42,7 @@ public class InOutMatMgmt {
     // 입고 등록
     public boolean insertInbound(Inbound ib) {
         int result = 0;
-        String query = "INSERT INTO material(ib_id, material_id, emp_id, qty) VALUES(seq_ib, ?, ?, ?)";
+        String query = "INSERT INTO inbound(ib_id, material_id, emp_id, qty) VALUES(seq_ib.nextval, ?, ?, ?)";
         try {
             // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
             // query 뒤에는 위쪽 ?에 들어갈 것들.
@@ -58,7 +58,7 @@ public class InOutMatMgmt {
     // 배치 등록
     public boolean insertBatch(Batch batch) {
         int result = 0;
-        String query = "INSERT INTO batch(batch_id, product_id, unit, status, note) VALUES(seq_batch, ?, ?, ?, ?)";
+        String query = "INSERT INTO batch(batch_id, product_id, unit, status, note) VALUES(seq_batch.nextval, ?, ?, ?, ?)";
         try {
             // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
             // query 뒤에는 위쪽 ?에 들어갈 것들.
@@ -97,7 +97,7 @@ public class InOutMatMgmt {
     // 출고 등록
     public boolean insertOutbound(Outbound ob) {
         int result = 0;
-        String query = "INSERT INTO outbound(ob_id, batch_id, emp_id, qty) VALUES(seq_ob, ?, ?, ?)";
+        String query = "INSERT INTO outbound(ob_id, batch_id, emp_id, qty) VALUES(seq_ob.nextval, ?, ?, ?)";
         try {
             // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
             // query 뒤에는 위쪽 ?에 들어갈 것들.
