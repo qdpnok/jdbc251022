@@ -316,17 +316,13 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 원자재 관리 - 원자재 등록
     private void insertMaterial() {
-        System.out.print("원자재 id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
         System.out.print("원자재 이름: ");
         String name = sc.nextLine();
 
         System.out.print("원자재 type: ");
         String type = sc.nextLine();
 
-        boolean isSuccess = mgmtDao.insertMaterial(new Material(id, name, type));
+        boolean isSuccess = mgmtDao.insertMaterial(new Material(0, name, type));
         System.out.println("원자재 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
@@ -486,10 +482,6 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 입고 관리 - 입고 등록
     private void insertInbound() {
-        System.out.print("입고 번호: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
         System.out.print("원자재 번호: ");
         int matId = sc.nextInt();
         sc.nextLine();
@@ -502,16 +494,12 @@ public class ConsoleRunner implements CommandLineRunner {
         int qty = sc.nextInt();
         sc.nextLine();
 
-        boolean isSuccess = inOutMatMgmt.insertInbound(new Inbound(id, matId, empId, qty, null));
+        boolean isSuccess = inOutMatMgmt.insertInbound(new Inbound(0, matId, empId, qty, null));
         System.out.println("입고 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
     // 입고 관리 - 배치 등록
     private void insertBatch() {
-        System.out.print("배치 번호: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
         System.out.print("완제품 번호: ");
         int prodId = sc.nextInt();
         sc.nextLine();
@@ -527,7 +515,7 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.print("비고: ");
         String note = sc.nextLine();
 
-        boolean isSuccess = inOutMatMgmt.insertBatch(new Batch(id, prodId, unit, status, note));
+        boolean isSuccess = inOutMatMgmt.insertBatch(new Batch(0, prodId, unit, status, note));
         System.out.println("배치 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
@@ -558,10 +546,6 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 출고 관리 - 출고 등록
     private void insertOutbound() {
-        System.out.print("출고 번호: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
         System.out.print("배치 번호: ");
         int batchId = sc.nextInt();
         sc.nextLine();
@@ -574,7 +558,7 @@ public class ConsoleRunner implements CommandLineRunner {
         int qty = sc.nextInt();
         sc.nextLine();
 
-        boolean isSuccess = inOutMatMgmt.insertOutbound(new Outbound(id, batchId, empId, qty, null));
+        boolean isSuccess = inOutMatMgmt.insertOutbound(new Outbound(0, batchId, empId, qty, null));
         System.out.println("출고 등록 " + (isSuccess ? "성공" : "실패"));
     }
 

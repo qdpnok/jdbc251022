@@ -388,11 +388,11 @@ public class MgmtDao {
     // 원자재 등록
     public boolean insertMaterial(Material mat) {
         int result = 0;
-        String query = "INSERT INTO material(material_id, material_name, type) VALUES(?, ?, ?)";
+        String query = "INSERT INTO material(material_id, material_name, type) VALUES(seq_mat.nextval, ?, ?)";
         try {
             // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
             // query 뒤에는 위쪽 ?에 들어갈 것들.
-            result = jdbcTemplate.update(query, mat.getId(), mat.getName(), mat.getType());
+            result = jdbcTemplate.update(query, mat.getName(), mat.getType());
 
         } catch (Exception e) {
             // 로그 메시지. lombok에서 제공함.
