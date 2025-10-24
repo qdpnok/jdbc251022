@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor @NoArgsConstructor
 public class Department {
     private int id;
-    private String name;
+    private String deptname;
     private String job;
     private int deptId;
     private int sal;
@@ -19,9 +19,22 @@ public class Department {
     private int createDate;
 
     public Department(int deptId, String deptName, String type, int factoryNo,
-                      String manager, LocalDateTime createDate) {
+                      String manager, int createDate) {
+        this.deptId = deptId;
+        this.deptname = deptName;
+        this.type = type;
+        this.factoryNO = factoryNo;
+        this.manager = manager;
+        this.createDate = createDate;
     }
 
     public Department(int id, String name) {
+    }
+
+    public Department(int deptId, String deptName, String type, int factoryNo, String manager, LocalDateTime createDate) {
+    }
+
+    public Object getName() {
+        return null;
     }
 }

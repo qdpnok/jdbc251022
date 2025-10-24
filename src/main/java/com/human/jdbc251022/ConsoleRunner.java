@@ -7,10 +7,16 @@ import com.human.jdbc251022.model.*;
 import com.human.jdbc251022.model.Employee;
 import com.human.jdbc251022.model.Material;
 import com.human.jdbc251022.model.Member;
+import com.human.jdbc251022.model.Process;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -99,8 +105,6 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("[4] 사원 ID 삭제");
         System.out.println("[5] 부서 등록");
         System.out.println("[6] 부서 삭제");
-        System.out.println("[7] 부서 담당자 지정");
-        System.out.println("[8] 부서 담당자 조회");
         System.out.println("[0] 처음으로");
         System.out.print("선택 ▶ ");
         int sel = sc.nextInt();
@@ -113,15 +117,15 @@ public class ConsoleRunner implements CommandLineRunner {
             case 4: deleteEmployee(); break;
             case 5: insertDept(); break;
             case 6: deleteDept(); break;
-            case 7: assignManagerToDept(); break;
-            case 8: getManager(); break;
             case 0: { return; }
             default : System.out.println("잘못된 선택입니다.");
         }
     }
 
-    private int readInt() {
-        return 0;
+    private void getManagerOfDept() {
+    }
+
+    private void listEmployeesByDept() {
     }
 
     private void insertEmployee() {
@@ -152,7 +156,8 @@ public class ConsoleRunner implements CommandLineRunner {
     private void getEmployee() {
         System.out.println("\n[사원 조회]");
         System.out.print("조회할 사원 ID: ");
-        int id = readInt();
+        int id = sc.nextInt();
+        sc.nextLine();
         Employee emp = mgmtDao.getEmployee(id);
         if (emp == null) {
             System.out.println("해당 ID의 사원이 없습니다.");
@@ -174,7 +179,8 @@ public class ConsoleRunner implements CommandLineRunner {
     private void deleteEmployee() {
         System.out.println("\n[사원 삭제]");
         System.out.print("삭제할 사원 ID: ");
-        int id = readInt();
+        int id = sc.nextInt();
+        sc.nextLine();
         boolean ok = mgmtDao.deleteEmployee(id);
         System.out.println(ok ? "사원 삭제 성공" : "사원 삭제 실패");
     }
@@ -182,14 +188,10 @@ public class ConsoleRunner implements CommandLineRunner {
     private void insertDept() {
         System.out.println("\n[부서 등록]");
         System.out.print("부서 ID : ");
-        int id = readInt();
+        int id = sc.nextInt();
+        sc.nextLine();
 
-        if (mgmtDao.getDepartment(id) != null) {
-            System.out.println("이미 존재하는 부서 ID입니다.");
-            return;
-        }
-
-        System.out.print("부서명: ");
+        System.out.print("부서명 : ");
         String name = sc.nextLine().trim();
 
         Department dept = new Department(id, name);
@@ -199,56 +201,118 @@ public class ConsoleRunner implements CommandLineRunner {
 
     private void deleteDept() {
         System.out.println("\n[부서 삭제]");
-        System.out.print("삭제할 부서 ID: ");
-        int id = readInt();
+        System.out.print("삭제할 부서 ID : ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
         boolean ok = mgmtDao.deleteDept(id);
-        System.out.println(ok ? "부서 삭제 성공" : "부서 삭제 실패(존재하지 않음)");
+        System.out.println(ok ? "부서 삭제 성공" : "부서 삭제 실패");
     }
 
-    private void assignManagerToDept() {
-        System.out.println("\n[부서 담당자(매니저) 지정]");
-        System.out.print("부서 ID: ");
-        int deptId = readInt();
-
-        Department dept = mgmtDao.getDepartment(deptId);
-        if (dept == null) {
-            System.out.println("존재하지 않는 부서 ID입니다.");
-            return;
+    private void prodWork() {
+        while (true) {
+            System.out.println("\n===== 작업 관리 =====");
+            System.out.println("[1] 작업 등록");
+            System.out.println("[2] 작업 목록 조회");
+            System.out.println("[3] 작업 지시 등록");
+            System.out.println("[4] 작업 실적 수정");
+            System.out.println("[5] 작업 삭제");
+            System.out.println("[6] 공정별 자재 투입 내역 조회");
+            System.out.println("[7] 원자재별 총 투입 수량 조회");
+            System.out.println("[0] 뒤로가기");
+            System.out.print("선택 ▶ ");
+            int sel = sc.nextInt();
+            sc.nextLine();
+            switch (sel) {
+                case 1: insertWork();
+                case 2: listWorks();
+                case 3: insertWorkOrder();
+                case 4: updateWorkResult();
+                case 5: deleteWork();
+                case 6: listMaterialInputsByProcess();
+                case 7: totalMaterialInputByName();
+                case 0: { return; }
+                default: System.out.println("잘못된 선택입니다.");
+            }
         }
-
-        System.out.print("담당자(사원) ID: ");
-        int empId = readInt();
-
-        Employee emp = mgmtDao.getEmployee(empId);
-        if (emp == null) {
-            System.out.println("존재하지 않는 사원 ID입니다.");
-            return;
-        }
-
-        boolean ok = mgmtDao.assignManagerToDept(deptId, empId);
-        System.out.println(ok ? "담당자 지정 완료" : "담당자 지정 실패");
     }
 
-    private void getManager() {
-        System.out.println("\n[부서 담당자 조회]");
-        System.out.print("부서 ID: ");
-        int deptId = readInt();
+    private void insertWork() {
+        System.out.println("\n[작업 등록]");
+        System.out.print("공정 번호: "); int PROCESS_ID = sc.nextInt();
+        sc.nextLine();
+        System.out.print("공정 이름: "); String PROCESS_NAME = sc.nextLine();
+        System.out.print("생산품: "); int PRODUCT_ID = sc.nextInt();
 
-        Department dept = mgmtDao.getDepartment(deptId);
-        if (dept == null) {
-            System.out.println("존재하지 않는 부서 ID입니다.");
-            return;
-        }
 
-        Employee mgr = mgmtDao.getManager(deptId);
-        if (mgr == null) {
-            System.out.println("지정된 담당자가 없습니다.");
-            return;
-        }
-        System.out.println("부서: " + dept.getName() + " (ID: " + dept.getId() + ")");
-        System.out.println("담당자: " + mgr);
+        Process w = new Process();
+        w.setPROCESS_ID(PROCESS_ID);
+        w.setPROCESS_NAME(PROCESS_NAME);
+        w.setPRODUCT_ID(PRODUCT_ID);
+
+
+        boolean ok = mgmtDao.insertWork(w);
+        System.out.println(ok ? "등록 성공" : "등록 실패");
     }
 
+    private void listWorks() {
+        List<Work> list = mgmtDao.getAllWorks();
+        if (list.isEmpty()) System.out.println("작업 없음");
+        else list.forEach(System.out::println);
+    }
+
+    private void insertWorkOrder() {
+        System.out.println("\n[작업 지시 등록]");
+        System.out.print("공정번호: "); int process = 0; sc.nextInt();
+        System.out.print("작업내용: ");int order = sc.nextInt();
+        System.out.print("담당자: "); int assigned = sc.nextInt();
+        sc.nextLine();
+        Work w = new Work();
+        w.setProcessNo(process);
+        w.setWorkId(order);
+        w.setAssignedTo(assigned);
+        w.setStartTime(LocalDateTime.now());
+        boolean ok = mgmtDao.insertWorkOrder(w);
+        System.out.println(ok ? "지시 완료" : "등록 실패");
+    }
+
+    private void updateWorkResult() {
+        System.out.print("\n수정할 작업 ID ▶ ");
+        int id = 0; sc.nextInt();
+        sc.nextLine();
+        System.out.print("결과(완료/취소/진행중): "); String res = sc.nextLine().trim();
+        System.out.print("종료시간(예:2025-10-24T18:00): ");
+        LocalDateTime end = LocalDateTime.parse(sc.nextLine().trim());
+        boolean ok = mgmtDao.updateWorkResult(id, res, end);
+        System.out.println(ok ? "수정 완료" : "수정 실패");
+    }
+
+    private void deleteWork() {
+        System.out.print("\n삭제할 작업 ID ▶ ");
+        int id = 0; sc.nextInt();
+        sc.nextLine();
+        boolean ok = mgmtDao.deleteWork(id);
+        System.out.println(ok ? "삭제 성공" : "실패");
+    }
+
+    private void listMaterialInputsByProcess() {
+        System.out.print("\n공정 번호 ▶ ");
+        int process = 0; sc.nextInt();
+        sc.nextLine();
+        List<MaterialInput> list = mgmtDao.getMaterialInputsByProcess(process);
+        if (list.isEmpty()) System.out.println("해당 공정 자재 없음");
+        else list.forEach(m ->
+                System.out.printf("자재ID:%d | 공정:%d | 자재명:%s | 수량:%d | 날짜:%s | 공장:%d%n",
+                        m.getMaterialId(), m.getProcessNo(), m.getMaterialName(),
+                        m.getInputQuantity(), m.getInputDate(), m.getFactoryNo()));
+    }
+
+    private void totalMaterialInputByName() {
+        System.out.print("\n조회할 자재명 : ");
+        String name = sc.nextLine().trim();
+        int total = mgmtDao.getTotalInputQuantityByMaterial(name);
+        System.out.printf("[%s] 총 투입 수량: %d개%n", name, total);
+    }
 
 
 
@@ -412,24 +476,6 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("[1]QC 결과 조회");
         System.out.println("[2]생산성 조회");
         System.out.println("[2]효율 정보 모니터링");
-
-        int sel = sc.nextInt();
-        sc.nextLine();
-
-        switch(sel) {
-            case 1: break;
-            case 2: break;
-            case 3: break;
-        }
-    }
-
-    // 생산/작업 메뉴
-    private void prodWork() {
-        System.out.println("===== 생산/작업 (Production/Work) =====");
-        System.out.println("[1]작업 지시 및 배정");
-        System.out.println("[2]작업 실적 입력");
-        System.out.println("[3]생산 자재 투입");
-
 
         int sel = sc.nextInt();
         sc.nextLine();

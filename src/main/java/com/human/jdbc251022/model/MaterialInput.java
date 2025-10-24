@@ -28,5 +28,25 @@ public class MaterialInput {
 
     public void setFactoryNo(int factoryNo) {
     }
+
+    public Object getProcessNo() {
+        return null;
+    }
+
+    public Object getMaterialName() {
+        return null;
+    }
+
+    public Object getInputQuantity() {
+        return null;
+    }
+
+    public Object getInputDate() {
+        return null;
+    }
+
+    public Object getFactoryNo() {
+        return null;
+    }
 }
 
