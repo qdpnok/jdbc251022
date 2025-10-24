@@ -538,4 +538,29 @@ public class MgmtDao {
             );
         }
     }
+
+    // 생산성 조회 - 전체
+    public List<Result> resultList() {
+        String query = "SELECT * FROM Result";
+        return jdbcTemplate.query(query, new MgmtDao.ResultRowMapper());
+    }
+
+    // 생산성 매퍼
+    private static class ResultRowMapper implements RowMapper<Result> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public Result mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Result(
+                    rs.getInt("RESULT_ID"),
+                    rs.getInt("PQTY"),
+                    rs.getInt("WQTY"),
+                    rs.getDouble("PE"),
+                    rs.getString("PROCESS_ID"),
+                    rs.getString("EMP_ID"),
+                    rs.getString("PRODUCTION_DATE")
+            );
+        }
+    }
 }
