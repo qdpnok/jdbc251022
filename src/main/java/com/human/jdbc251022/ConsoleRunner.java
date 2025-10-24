@@ -2,12 +2,17 @@ package com.human.jdbc251022;
 
 import com.human.jdbc251022.dao.MemberDao;
 import com.human.jdbc251022.dao.MgmtDao;
+import com.human.jdbc251022.dao.QCDao;
 import com.human.jdbc251022.model.Material;
 import com.human.jdbc251022.model.Member;
+import com.human.jdbc251022.model.QCVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,6 +22,7 @@ import java.util.Scanner;
 public class ConsoleRunner implements CommandLineRunner {
     private final Scanner sc = new Scanner(System.in);
     private final MemberDao memberDao;
+    private final QCDao qcDao;
     private final MgmtDao mgmtDao;
     @Override
     public void run(String... args) throws Exception {
@@ -277,7 +283,7 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
     // 품질관리 메뉴
-    private void qc() {
+    private void QC() {
         System.out.println("===== 품질 관리 (Quality Control - QC) =====");
         System.out.println("[1]QC 테스트 관리");
         System.out.println("[2]샘플 관리");
@@ -288,10 +294,140 @@ public class ConsoleRunner implements CommandLineRunner {
         sc.nextLine();
 
         switch(sel) {
-            case 1: matBatchIn(); break;
+            case 1: QCBatchIn(); break;
             case 2: break;
             case 3: break;
         }
+    }
+
+    // QC 관리 메뉴
+    private void QCBatchIn() {
+        System.out.println("===== QC 테스트 관리 =====");
+        System.out.println("[1]전체 조회");
+        System.out.println("[2]이름으로 검색");
+        System.out.println("[3]QC 등록");
+        System.out.println("[4]QC 정보 수정");
+        System.out.println("[5]QC 삭제");
+        System.out.println("[6]QC 정보 조회");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: qcList(); break;
+            case 2: getQCVO(); break;
+            case 3: insertQCVO(); break;
+            case 4: updateQCVO(); break;
+            case 5: deleteQCVO(); break;
+            case 6: break;
+
+        }
+    }
+
+    // QC 관리 - 전체 조회
+    private void qcList() {
+        List<QCVO> qcList = qcDao.qcList();
+        if(qcList.isEmpty()) {
+            System.out.println("등록된 QC가 없습니다.");
+            return;
+        }
+        for(QCVO e : qcList) System.out.println(e);
+    }
+
+    // QC 관리 - 이름 조회
+    private void getQCVO() {
+        System.out.print("검색할 QC명 입력: ");
+
+        List<QCVO> qcList = qcDao.qcList();
+        if(qcList.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 QC명이 없습니다.");
+            return;
+        }
+        for(QCVO e : qcList) System.out.println(e);
+    }
+
+    // QC 관리 - QC 등록
+    private void insertQCVO() {
+        System.out.print("QC id: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("Sample id: ");
+        int sample_id = sc.nextInt();
+
+        System.out.print("테스트 Item: ");
+        String name = sc.nextLine();
+
+        System.out.print("기준치: ");
+        String std = sc.nextLine();
+
+        System.out.print("테스트 결과 (예: Pass/Fail): ");
+        String type = sc.nextLine();
+
+        System.out.print("담당자 id: ");
+        int tester = sc.nextInt();
+
+        boolean isSuccess = qcDao.insertQCVO(new QCVO(id, sample_id, name, std,  type, null, tester));
+        System.out.println("QC 등록 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // QC 관리 - QC 정보 수정
+    private void updateQCVO() {
+        System.out.print("QC id 수정: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("Sample id 수정: ");
+        int sample_id = sc.nextInt();
+
+        System.out.print("테스트 Item 수정: ");
+        String name = sc.nextLine();
+
+        System.out.print("기준치 수정: ");
+        String std = sc.nextLine();
+
+        System.out.print("테스트 수정 (예: Pass/Fail): ");
+        String type = sc.nextLine();
+
+        System.out.print("테스트 일자 수정: ");
+        Date date = null;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            date = formatter.parse(sc.nextLine());
+        } catch (ParseException e) {
+        }
+
+        System.out.print("담당자 id 수정: ");
+        int tester = sc.nextInt();
+
+        boolean isSuccess = qcDao.insertQCVO(new QCVO(id, sample_id, name, std,  type, date, tester));
+        System.out.println("QC 정보 수정 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // 원자재 관리 - 원자재 삭제
+    private void deleteQCVO() {
+        System.out.print("삭제할 QC id: ");
+        String id = sc.nextLine();
+        sc.nextLine();
+
+        boolean isSuccess = qcDao.deleteQCVO (id);
+        System.out.println("QC 삭제 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    private void QCVOInfo() {
+        System.out.print("상세 조회할 QC 결과 번호 (Result ID): ");
+        int resultId = sc.nextInt();
+        sc.nextLine();
+
+        QCVO qcInfo = null; // 예시용
+
+        if (qcInfo == null) {
+            System.out.println("해당 QC 결과 번호로 등록된 정보가 없습니다.");
+            return;
+        }
+
+        System.out.println("----- QC 상세 정보 -----");
+        System.out.println(qcInfo.toString());
     }
 
 }
