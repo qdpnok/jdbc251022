@@ -144,7 +144,7 @@ public class ConsoleRunner implements CommandLineRunner {
         int sal = sc.nextInt();
         sc.nextLine();
 
-        Employee emp = new Employee(id, name, job, deptId, sal);
+        Employee emp = new Employee(id, name, job, deptId, sal, null);
         boolean ok = mgmtDao.insertEmployee(emp);
         System.out.println(ok ? "사원 등록 성공" : "사원 등록 실패");
     }

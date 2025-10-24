@@ -13,10 +13,4 @@ public class Employee {
     private int deptId;
     private int sal;
     private LocalDateTime hireDate;
-
-    public Employee(String empId, String empName, String job, String deptId, int sal) {
-    }
-
-    public Employee(int id, String name, String job, int deptId, int sal) {
-    }
 }
