@@ -312,13 +312,51 @@ public class ConsoleRunner implements CommandLineRunner {
                         m.getMaterialId(), m.getProcessNo(), m.getMaterialName(),
                         m.getInputQuantity(), m.getInputDate(), m.getFactoryNo()));
     }
-
     private void totalMaterialInputByName() {
         System.out.print("\n조회할 자재명 : ");
         String name = sc.nextLine().trim();
         int total = mgmtDao.getTotalInputQuantityByMaterial(name);
         System.out.printf("[%s] 총 투입 수량: %d개%n", name, total);
     }
+
+    // 생산 품질 성과 조회
+    private void perfMgmt() {
+        System.out.println("===== 생산/품질 성과 조회  =====");
+        System.out.println("[1]QC 결과 조회");
+        System.out.println("[2]생산성 조회");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: qcResultList(); break;
+            case 2: PrdResultList(); break;
+        }
+    }
+    // QC 결과 조회
+    private void qcResultList() {
+        System.out.print("QC id 조회: ");
+
+        List<QCResult> qcResultList = mgmtDao.qcResultList();
+        if(qcResultList.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 QC명이 없습니다.");
+            return;
+        }
+        for(QCResult e : qcResultList) System.out.println(e);
+    }
+
+    // 생산성 조회
+    private void PrdResultList() {
+        System.out.print("검색할 QC명 입력: ");
+
+        List<PrdResult> prdList = mgmtDao.prdList();
+        if(prdList.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 QC명이 없습니다.");
+            return;
+        }
+        for(PrdResult e : prdList) System.out.println(e);
+    }
+
 
 
 
@@ -483,22 +521,6 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
 
-    // 성과 관리 - 생산/품질 성과 조회 메뉴
-    private void perfMgmt() {
-        System.out.println("===== 성과 관리 =====");
-        System.out.println("[1]QC 결과 조회");
-        System.out.println("[2]생산성 조회");
-        System.out.println("[2]효율 정보 모니터링");
-
-        int sel = sc.nextInt();
-        sc.nextLine();
-
-        switch(sel) {
-            case 1: break;
-            case 2: break;
-            case 3: break;
-        }
-    }
 
     // 입출고 및 자재 관리 메뉴
     private void inOutMatMgmt() {
@@ -653,7 +675,7 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("===== 품질 관리 (Quality Control - QC) =====");
         System.out.println("[1]QC 테스트 관리");
         System.out.println("[2]샘플 관리");
-        System.out.println("[3]검사 결과 등록/조회");
+        System.out.println("[3]검사 결과 조회");
 
 
         int sel = sc.nextInt();
@@ -661,8 +683,8 @@ public class ConsoleRunner implements CommandLineRunner {
 
         switch(sel) {
             case 1: QCBatchIn(); break;
-            case 2: break;
-            case 3: break;
+            case 2: sampleBatchIn(); break;
+            case 3: resultBatchIn(); break;
         }
     }
 
@@ -685,7 +707,7 @@ public class ConsoleRunner implements CommandLineRunner {
             case 3: insertQCVO(); break;
             case 4: updateQCVO(); break;
             case 5: deleteQCVO(); break;
-            case 6: break;
+            case 6: QCVOInfo(); break;
 
         }
     }
@@ -770,7 +792,7 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("QC 정보 수정 " + (isSuccess ? "성공" : "실패"));
     }
 
-    // 원자재 관리 - 원자재 삭제
+    // QC 관리 - QC 삭제
     private void deleteQCVO() {
         System.out.print("삭제할 QC id: ");
         String id = sc.nextLine();
@@ -794,6 +816,173 @@ public class ConsoleRunner implements CommandLineRunner {
 
         System.out.println("----- QC 상세 정보 -----");
         System.out.println(qcInfo.toString());
+    }
+
+
+    // sample 관리 메뉴
+    private void sampleBatchIn() {
+        System.out.println("===== 샘플 관리 =====");
+        System.out.println("[1]전체 조회");
+        System.out.println("[2]이름으로 검색");
+        System.out.println("[3]샘플 정보등록");
+        System.out.println("[4]샘플 정보 수정");
+        System.out.println("[5]샘플 정보 삭제");
+        System.out.println("[6]샘플 정보 조회");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: sampleList(); break;
+            case 2: getsample(); break;
+            case 3: insertsample(); break;
+            case 4: updatesample(); break;
+            case 5: deletesample(); break;
+            case 6: sampleInfo(); break;
+
+        }
+    }
+
+    // Sample 관리 - 전체 조회
+    private void sampleList() {
+        List<Sample> sampleList = qcDao.sampleList();
+        if(sampleList.isEmpty()) {
+            System.out.println("등록된 Sample이 없습니다.");
+            return;
+        }
+        for(Sample e : sampleList) System.out.println(e);
+    }
+
+    // Sample 관리 - 이름 조회
+    private void getsample() {
+        System.out.print("검색할 Sample 입력: ");
+        int sampleId = sc.nextInt();
+        sc.nextLine();
+
+        Sample sample = null;
+
+        if(sample == null) {
+            System.out.println("해당 이름으로 등록된 Sample이 없습니다.");
+            return;
+        }
+        System.out.println("----- 샘플 정보 -----");
+        System.out.println(sample.toString());
+    }
+
+    // Sample 관리 - Sample 등록
+    private void insertsample() {
+        System.out.print("샘플 ID: ");
+        int sampleId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("배치 ID: ");
+        int batchId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("생산 번호: ");
+        int resultId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("샘플링 일자: ");
+        String sampleDate = sc.nextLine();
+        sc.nextLine();
+
+        boolean isSuccess = qcDao.insertSample(new Sample(sampleId, batchId, resultId, sampleDate));
+        System.out.println("샘플 등록 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // Sample 관리 - Sample 정보 수정
+    private void updatesample() {
+        System.out.print("수정할 샘플 ID (SAMPLE_ID): ");
+        int sampleId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("새로운 배치 ID (BATCH_ID): ");
+        int batchId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("새로운 결과 ID (RESULT_ID): ");
+        int resultId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("샘플링 일자 수정: ");
+        Date sampleDate = null;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            sampleDate = formatter.parse(sc.nextLine());
+        } catch (ParseException e) {
+        }
+
+        boolean isSuccess =  qcDao.updateSample(new Sample(sampleId, batchId, resultId, sampleDate));
+        System.out.println("QC 정보 수정 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // Sample 관리 - Sample 삭제
+    private void deletesample() {
+        System.out.print("삭제할 샘플 ID: ");
+        int sampleId = sc.nextInt();
+        sc.nextLine();
+
+        boolean isSuccess = qcDao.deleteSample (sampleId);
+        System.out.println("샘플 삭제 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // Sample 관리 - 샘플 정보 조회
+    private void sampleInfo() {
+        System.out.print("상세 조회할 샘플 ID (SAMPLE_ID): ");
+        int sampleId = sc.nextInt();
+        sc.nextLine();
+
+        // Sample sampleInfo = qcDao.getSample(sampleId); // Sample DAO 메서드 호출
+        Sample sampleInfo = null; // 예시용
+
+        if (sampleInfo == null) {
+            System.out.println("해당 샘플 ID로 등록된 정보가 없습니다.");
+            return;
+        }
+
+        System.out.println("----- 샘플 상세 정보 -----");
+        System.out.println(sampleInfo.toString());
+    }
+
+    // Result 관리 메뉴
+    private void resultBatchIn() {
+        System.out.println("===== 검사 결과 조회 =====");
+        System.out.println("[1]전체 조회");
+        System.out.println("[2]이름으로 검색");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: resultList(); break;
+            case 2: getResult(); break;
+
+        }
+    }
+
+    // Result 관리 - 전체 조회
+    private void resultList() {
+        List<ResultQC> resultList = qcDao.resultList();
+        if(resultList.isEmpty()) {
+            System.out.println("등록된 검사 결과가 없습니다.");
+            return;
+        }
+        for(ResultQC e : resultList) System.out.println(e);
+    }
+
+    // Result 관리 - 이름 조회
+    private void getResult() {
+        System.out.print("검색할 검사 결과 입력: ");
+        int resultId = sc.nextInt();
+        sc.nextLine();
+
+        ResultQC result = null;
+
+        if(result == null) {
+            System.out.println("해당 이름으로 등록된 검사 결과가 없습니다.");
+            return;
+        }
     }
 
 }
