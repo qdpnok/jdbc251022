@@ -243,16 +243,18 @@ public class MgmtDao {
     // 작업 지시 및 배정
     public boolean insertWorkOrder(Work work) {
         String sql = """
-        INSERT INTO Work (PROCESS_NO, WORK_ORDER, ASSIGNED_TO, START_TIME, RESULT)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO Work (WORKORDER_ID, PROCESS_ID, BATCH_ID, QTY, START_DATE, END_DATE, WORKER)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
         try {
             int result = jdbcTemplate.update(sql,
-                    work.getProcessNo(),
                     work.getWorkId(),
-                    work.getAssignedTo(),
-                    work.getStartTime(),      // 작업 시작 시간
-                    "지시됨"                   // 기본 상태 : 지시됨
+                    work.getProcessNo(),
+                    work.getBatchId(),
+                    work.getQty(),
+                    work.getStartTime(),
+                    work.getEndTime(),
+                    work.getAssignedTo()
             );
             return result > 0;
         } catch (Exception e) {

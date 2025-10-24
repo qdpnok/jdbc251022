@@ -268,18 +268,53 @@ public class ConsoleRunner implements CommandLineRunner {
 
     private void insertWorkOrder() {
         System.out.println("\n[작업 지시 등록]");
-        System.out.print("공정번호: "); int process = 0; sc.nextInt();
-        System.out.print("작업내용: ");int order = sc.nextInt();
-        System.out.print("담당자: "); int assigned = sc.nextInt();
-        sc.nextLine();
-        Work w = new Work();
-        w.setProcessNo(process);
-        w.setWorkId(order);
-        w.setAssignedTo(assigned);
-        w.setStartTime(LocalDateTime.now());
 
-        boolean ok = mgmtDao.insertWorkOrder(w);
-        System.out.println(ok ? "작업 지시 완료" : "작업 지시 실패");
+        try {
+            System.out.print("작업지시 ID: ");
+            int workOrderId = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("공정번호 (PROCESS_ID): ");
+            int processId = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("배치번호 (BATCH_ID): ");
+            int batchId = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("수량 (QTY): ");
+            int qty = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("시작일 (예: 2025-09-10): ");
+            String start = sc.nextLine();
+            LocalDateTime startDate = LocalDateTime.parse(start + "T00:00");
+
+            System.out.print("종료일 (예: 2025-09-12): ");
+            String end = sc.nextLine();
+            LocalDateTime endDate = LocalDateTime.parse(end + "T00:00");
+
+            System.out.print("작업자 ID (WORKER): ");
+            int worker = sc.nextInt();
+            sc.nextLine();
+
+            // Work 객체에 값 대입
+            Work w = new Work();
+            w.setWorkId(workOrderId);
+            w.setProcessNo(processId);
+            w.setBatchInput(String.valueOf(batchId));  // 문자열로 저장
+            w.setInputQuantity(qty);
+            w.setStartTime(startDate);
+            w.setEndTime(endDate);
+            w.setAssignedTo(Integer.parseInt(String.valueOf(worker)));   // 담당자(사원 ID)
+            w.setResult("지시됨");
+
+            boolean ok = mgmtDao.insertWorkOrder(w);
+            System.out.println(ok ? "작업 지시 완료!" : "작업 지시 실패!");
+
+        } catch (Exception e) {
+            System.out.println("입력 오류: " + e.getMessage());
+        }
     }
 
     private void updateWorkResult() {
