@@ -3,11 +3,13 @@ package com.human.jdbc251022;
 import com.human.jdbc251022.dao.InOutMatMgmt;
 import com.human.jdbc251022.dao.MemberDao;
 import com.human.jdbc251022.dao.MgmtDao;
+import com.human.jdbc251022.dao.QCDao;
 import com.human.jdbc251022.model.*;
 import com.human.jdbc251022.model.Employee;
 import com.human.jdbc251022.model.Material;
 import com.human.jdbc251022.model.Member;
 import com.human.jdbc251022.model.Process;
+import com.human.jdbc251022.model.QCVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -26,6 +31,7 @@ import java.util.Scanner;
 public class ConsoleRunner implements CommandLineRunner {
     private final Scanner sc = new Scanner(System.in);
     private final MemberDao memberDao;
+    private final QCDao qcDao;
     private final MgmtDao mgmtDao;
     private final InOutMatMgmt inOutMatMgmt;
     @Override
@@ -41,13 +47,11 @@ public class ConsoleRunner implements CommandLineRunner {
             int sel = sc.nextInt();
             sc.nextLine();
 
-            boolean isSuccess;
-
             switch (sel) {
                 case 1: mgmt(); break;
                 case 2: prodWork(); break;
                 case 3: inOutMatMgmt(); break;
-                case 4: qc(); break;
+                case 4: QC(); break;
             }
         }
     }
@@ -380,25 +384,27 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 원자재 관리 - 원자재 등록
     private void insertMaterial() {
-        System.out.print("원자재 id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
         System.out.print("원자재 이름: ");
         String name = sc.nextLine();
 
-        System.out.print("원자재 type: ");
-        String type = sc.nextLine();
+        System.out.print("원자재 type [1] 원료 [2] 자재: ");
+        String type = (sc.nextInt() == 1 ? "원료" : "자재");
+        sc.nextLine();
 
-        boolean isSuccess = mgmtDao.insertMaterial(new Material(id, name, type));
+        boolean isSuccess = mgmtDao.insertMaterial(new Material(0, name, type));
         System.out.println("원자재 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
     // 원자재 관리 - 원자재 정보 수정
     private void updateMaterial() {
-        System.out.print("수정할 원자재 id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        System.out.print("수정할 원자재 이름: ");
+        List<Material> updateMat = mgmtDao.matNameList(sc.nextLine());
+
+        if(updateMat.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 원자재가 없습니다.");
+            return;
+        }
+        int id = updateMat.get(0).getId();
 
         System.out.print("원자재 이름: ");
         String name = sc.nextLine();
@@ -412,9 +418,14 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 원자재 관리 - 원자재 삭제
     private void deleteMaterial() {
-        System.out.print("삭제할 원자재 id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        System.out.print("삭제할 원자재 이름: ");
+        List<Material> updateMat = mgmtDao.matNameList(sc.nextLine());
+
+        if(updateMat.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 원자재가 없습니다.");
+            return;
+        }
+        int id = updateMat.get(0).getId();
 
         boolean isSuccess = mgmtDao.deleteMaterial(new Material(id, null, null));
         System.out.println("원자재 삭제 " + (isSuccess ? "성공" : "실패"));
@@ -532,32 +543,36 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 입고 관리 - 입고 등록
     private void insertInbound() {
-        System.out.print("입고 번호: ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        System.out.print("원자재 이름: ");
+        List<Material> updateMat = mgmtDao.matNameList(sc.nextLine());
 
-        System.out.print("원자재 번호: ");
-        int matId = sc.nextInt();
-        sc.nextLine();
+        if(updateMat.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 원자재가 없습니다.");
+            return;
+        }
+        int matId = updateMat.get(0).getId();
 
-        System.out.print("사원 번호: ");
-        int empId = sc.nextInt();
-        sc.nextLine();
+        // 사원 이름으로 id 가져오기
+        System.out.print("사원 이름: ");
+
+        List<Employee> emp = mgmtDao.getEmployeeId(sc.nextLine());
+        if(emp.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 사원이 없습니다.");
+            return;
+        }
+        int empId = emp.get(0).getId();
 
         System.out.print("수량: ");
         int qty = sc.nextInt();
         sc.nextLine();
 
-        boolean isSuccess = inOutMatMgmt.insertInbound(new Inbound(id, matId, empId, qty, null));
+        boolean isSuccess = inOutMatMgmt.insertInbound(new Inbound(0, matId, empId, qty, null));
         System.out.println("입고 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
     // 입고 관리 - 배치 등록
     private void insertBatch() {
-        System.out.print("배치 번호: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
+        // !!!!! 완제품 이름으로 검색하게 바꾸기
         System.out.print("완제품 번호: ");
         int prodId = sc.nextInt();
         sc.nextLine();
@@ -566,14 +581,21 @@ public class ConsoleRunner implements CommandLineRunner {
         int unit = sc.nextInt();
         sc.nextLine();
 
-        System.out.print("상태: ");
-        String status = sc.nextLine();
+        System.out.print("상태 [1] 대기 [2] 진행중 [3] 완료: ");
+        int statusCode = sc.nextInt();
         sc.nextLine();
+        String status;
+        switch(statusCode) {
+            case 1: status = "대기"; break;
+            case 2: status = "진행중"; break;
+            case 3: status = "완료"; break;
+            default: System.out.println("상태 코드 입력 오류"); return;
+        }
 
-        System.out.print("비고: ");
+        System.out.print("메모: ");
         String note = sc.nextLine();
 
-        boolean isSuccess = inOutMatMgmt.insertBatch(new Batch(id, prodId, unit, status, note));
+        boolean isSuccess = inOutMatMgmt.insertBatch(new Batch(0, prodId, unit, status, note));
         System.out.println("배치 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
@@ -604,28 +626,28 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 출고 관리 - 출고 등록
     private void insertOutbound() {
-        System.out.print("출고 번호: ");
-        int id = sc.nextInt();
-        sc.nextLine();
-
         System.out.print("배치 번호: ");
         int batchId = sc.nextInt();
         sc.nextLine();
 
-        System.out.print("출고 담당자: ");
-        int empId = sc.nextInt();
-        sc.nextLine();
+        System.out.print("출고 담당자 이름: ");
+        List<Employee> emp = mgmtDao.getEmployeeId(sc.nextLine());
+        if(emp.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 사원이 없습니다.");
+            return;
+        }
+        int empId = emp.get(0).getId();
 
         System.out.print("수량: ");
         int qty = sc.nextInt();
         sc.nextLine();
 
-        boolean isSuccess = inOutMatMgmt.insertOutbound(new Outbound(id, batchId, empId, qty, null));
+        boolean isSuccess = inOutMatMgmt.insertOutbound(new Outbound(0, batchId, empId, qty, null));
         System.out.println("출고 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
     // 품질관리 메뉴
-    private void qc() {
+    private void QC() {
         System.out.println("===== 품질 관리 (Quality Control - QC) =====");
         System.out.println("[1]QC 테스트 관리");
         System.out.println("[2]샘플 관리");
@@ -636,10 +658,140 @@ public class ConsoleRunner implements CommandLineRunner {
         sc.nextLine();
 
         switch(sel) {
-            case 1: matBatchIn(); break;
+            case 1: QCBatchIn(); break;
             case 2: break;
             case 3: break;
         }
+    }
+
+    // QC 관리 메뉴
+    private void QCBatchIn() {
+        System.out.println("===== QC 테스트 관리 =====");
+        System.out.println("[1]전체 조회");
+        System.out.println("[2]이름으로 검색");
+        System.out.println("[3]QC 등록");
+        System.out.println("[4]QC 정보 수정");
+        System.out.println("[5]QC 삭제");
+        System.out.println("[6]QC 정보 조회");
+
+        int sel = sc.nextInt();
+        sc.nextLine();
+
+        switch(sel) {
+            case 1: qcList(); break;
+            case 2: getQCVO(); break;
+            case 3: insertQCVO(); break;
+            case 4: updateQCVO(); break;
+            case 5: deleteQCVO(); break;
+            case 6: break;
+
+        }
+    }
+
+    // QC 관리 - 전체 조회
+    private void qcList() {
+        List<QCVO> qcList = qcDao.qcList();
+        if(qcList.isEmpty()) {
+            System.out.println("등록된 QC가 없습니다.");
+            return;
+        }
+        for(QCVO e : qcList) System.out.println(e);
+    }
+
+    // QC 관리 - 이름 조회
+    private void getQCVO() {
+        System.out.print("검색할 QC명 입력: ");
+
+        List<QCVO> qcList = qcDao.qcList();
+        if(qcList.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 QC명이 없습니다.");
+            return;
+        }
+        for(QCVO e : qcList) System.out.println(e);
+    }
+
+    // QC 관리 - QC 등록
+    private void insertQCVO() {
+        System.out.print("QC id: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("Sample id: ");
+        int sample_id = sc.nextInt();
+
+        System.out.print("테스트 Item: ");
+        String name = sc.nextLine();
+
+        System.out.print("기준치: ");
+        String std = sc.nextLine();
+
+        System.out.print("테스트 결과 (예: Pass/Fail): ");
+        String type = sc.nextLine();
+
+        System.out.print("담당자 id: ");
+        int tester = sc.nextInt();
+
+        boolean isSuccess = qcDao.insertQCVO(new QCVO(id, sample_id, name, std,  type, null, tester));
+        System.out.println("QC 등록 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // QC 관리 - QC 정보 수정
+    private void updateQCVO() {
+        System.out.print("QC id 수정: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("Sample id 수정: ");
+        int sample_id = sc.nextInt();
+
+        System.out.print("테스트 Item 수정: ");
+        String name = sc.nextLine();
+
+        System.out.print("기준치 수정: ");
+        String std = sc.nextLine();
+
+        System.out.print("테스트 수정 (예: Pass/Fail): ");
+        String type = sc.nextLine();
+
+        System.out.print("테스트 일자 수정: ");
+        Date date = null;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            date = formatter.parse(sc.nextLine());
+        } catch (ParseException e) {
+        }
+
+        System.out.print("담당자 id 수정: ");
+        int tester = sc.nextInt();
+
+        boolean isSuccess = qcDao.insertQCVO(new QCVO(id, sample_id, name, std,  type, date, tester));
+        System.out.println("QC 정보 수정 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    // 원자재 관리 - 원자재 삭제
+    private void deleteQCVO() {
+        System.out.print("삭제할 QC id: ");
+        String id = sc.nextLine();
+        sc.nextLine();
+
+        boolean isSuccess = qcDao.deleteQCVO (id);
+        System.out.println("QC 삭제 " + (isSuccess ? "성공" : "실패"));
+    }
+
+    private void QCVOInfo() {
+        System.out.print("상세 조회할 QC 결과 번호 (Result ID): ");
+        int resultId = sc.nextInt();
+        sc.nextLine();
+
+        QCVO qcInfo = null; // 예시용
+
+        if (qcInfo == null) {
+            System.out.println("해당 QC 결과 번호로 등록된 정보가 없습니다.");
+            return;
+        }
+
+        System.out.println("----- QC 상세 정보 -----");
+        System.out.println(qcInfo.toString());
     }
 
 }

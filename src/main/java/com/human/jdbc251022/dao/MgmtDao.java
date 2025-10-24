@@ -328,6 +328,12 @@ public class MgmtDao {
         }
     }
 
+    // 사원 검색 - 이름 -> 사원번호
+    public List<Employee> getEmployeeId(String name) {
+        String query = "SELECT * FROM Employee WHERE EMP_name = ?";
+        return jdbcTemplate.query(query, new EmpRowMapper(), name);
+    }
+
     // 원자재 조회 - 전체
     public List<Material> matList() {
         String query = "SELECT * FROM material";
@@ -343,11 +349,11 @@ public class MgmtDao {
     // 원자재 등록
     public boolean insertMaterial(Material mat) {
         int result = 0;
-        String query = "INSERT INTO material(material_id, material_name, type) VALUES(?, ?, ?)";
+        String query = "INSERT INTO material(material_id, material_name, type) VALUES(seq_mat.nextval, ?, ?)";
         try {
             // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
             // query 뒤에는 위쪽 ?에 들어갈 것들.
-            result = jdbcTemplate.update(query, mat.getId(), mat.getName(), mat.getType());
+            result = jdbcTemplate.update(query, mat.getName(), mat.getType());
 
         } catch (Exception e) {
             // 로그 메시지. lombok에서 제공함.
@@ -490,6 +496,31 @@ public class MgmtDao {
                     rs.getString("PASS_FAIL"),
                     rs.getInt("BATCH_ID"),
                     rs.getInt("RESULT_ID")
+            );
+        }
+    }
+
+    // 생산성 조회 - 전체
+    public List<Result> resultList() {
+        String query = "SELECT * FROM Result";
+        return jdbcTemplate.query(query, new MgmtDao.ResultRowMapper());
+    }
+
+    // 생산성 매퍼
+    private static class ResultRowMapper implements RowMapper<Result> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public Result mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Result(
+                    rs.getInt("RESULT_ID"),
+                    rs.getInt("PQTY"),
+                    rs.getInt("WQTY"),
+                    rs.getDouble("PE"),
+                    rs.getString("PROCESS_ID"),
+                    rs.getString("EMP_ID"),
+                    rs.getString("PRODUCTION_DATE")
             );
         }
     }

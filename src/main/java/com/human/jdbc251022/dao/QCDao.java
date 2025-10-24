@@ -21,7 +21,7 @@ public class QCDao {
     private final JdbcTemplate jdbcTemplate;
 
     // QC 전체 조회
-    public List<QCVO> empList(QCVO qcvo) {
+    public List<QCVO> qcList() {
         String query = "SELECT * FROM qcvo";
         return jdbcTemplate.query(query, new QCDao.QCMapper());
     }
@@ -31,9 +31,11 @@ public class QCDao {
         @Override
         public QCVO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new QCVO(
-                    rs.getString("QC_ID"),
+                    rs.getInt("QC_ID"),
+                    rs.getInt("SAMPLE_ID"),
                     rs.getString("QC.ITEM_ID"),
                     rs.getString("STATUS"),
+                    rs.getString("passFail"),
                     rs.getDate("QC_DATE"),
                     rs.getInt("EMP_ID")
             );
@@ -46,7 +48,7 @@ public class QCDao {
         try {
             return jdbcTemplate.queryForObject(query,
                     (rs, rowNum) -> new QCVO(
-                            rs.getString("QC_ID"),
+                            rs.getInt("QC_ID"),
                             rs.getString("QC.ITEM_ID"),
                             rs.getString("STATUS"),
                             rs.getDate("QC_DATE"),
@@ -120,6 +122,68 @@ public class QCDao {
                     rs.getInt("SAMPLE_DATE")
             );
         }
+    }
+
+    // Sample 조회 (단건)
+    public Sample getSample(int sampleId) {
+        String query = "SELECT * FROM Sample WHERE SAMPLE_ID = ?";
+        try {
+            return jdbcTemplate.queryForObject(query,
+                    (rs, rowNum) -> new Sample(
+                            rs.getInt("SAMPLE_ID"),
+                            rs.getInt("BATCH_ID"),
+                            rs.getInt("RESULT_ID"),
+                            rs.getInt("SAMPLE_DATE")));
+        } catch (Exception e) {
+            log.error("Sample 조회 실패: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // Sample 번호 등록
+    public boolean insertSample(Sample sample) {
+        int result = 0;
+        String query = "INSERT INTO Sample (SAMPLE_ID, BATCH_ID, RESULT_ID, SAMPLE_DATE) VALUES(?, ?, ?, ?, ?)";
+        try {
+            // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
+            // query 뒤에는 위쪽 ?에 들어갈 것들.
+            result = jdbcTemplate.update(query, sample.getSampleId(),
+            sample.getBatchId(), sample.getResultId(), sample.getSampleDate());
+
+        } catch (Exception e) {
+            // 로그 메시지. lombok에서 제공함.
+            log.error("Sample 번호 등록 실패 : {}", e.getMessage());
+        }
+        return result > 0;
+    }
+
+    // Sample 정보 수정
+    public boolean updateSample(Sample sample) {
+        int result = 0;
+        String query = "UPDATE Sample SET pwd = ?";
+        try {
+            result = jdbcTemplate.update(query, sample.getSampleId(),
+                    sample.getBatchId(), sample.getResultId(), sample.getSampleDate());
+
+        } catch (Exception e) {
+            // 로그 메시지. lombok에서 제공함.
+            log.error("Sample 정보 수정 실패 : {}", e.getMessage());
+        }
+        return result > 0;
+    }
+
+    // Sample 정보 삭제
+    public boolean deleteSample(int sampleId) {
+        int result = 0;
+        String query = "DELETE FROM Sample WHERE sampleId = ?";
+        try {
+            result = jdbcTemplate.update(query, sampleId);
+
+        } catch (Exception e) {
+            // 로그 메시지. lombok에서 제공함.
+            log.error("Sample 삭제 실패 : {}", e.getMessage());
+        }
+        return result > 0;
     }
 
 
