@@ -1,6 +1,7 @@
 package com.human.jdbc251022.dao;
 
 import com.human.jdbc251022.model.*;
+import com.human.jdbc251022.model.Process;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -161,35 +162,6 @@ public class MgmtDao {
         }
     }
 
-    // 부서별 담당자 지정
-    public boolean assignManagerToDept(int deptId, int empId) {
-        String query = "UPDATE Department SET MANAGER = ? WHERE DEPT_ID = ?";
-        try {
-            int result = jdbcTemplate.update(query, empId, deptId);
-            return result > 0;
-        } catch (Exception e) {
-            log.error("부서 담당자 지정 실패 : {}", e.getMessage());
-            return false;
-        }
-    }
-
-    // 부서별 담당자 조회
-    public String getManagerByDept(int deptId) {
-        String query = "SELECT MANAGER FROM Department WHERE DEPT_ID = ?";
-        try {
-            return jdbcTemplate.queryForObject(query, String.class, deptId);
-        } catch (Exception e) {
-            log.error("부서별 담당자 조회 실패 : {}", e.getMessage());
-            return null;
-        }
-    }
-    public Department getDepartment(int deptId) {
-        return null;
-    }
-    public Employee getManager(int deptId) {
-        return null;
-    }
-
     // 생산일 등록
     public boolean insertProduction(Production production) {
         String query = "INSERT INTO Production (PROCESS_NO, PRODUCT_NAME, QUANTITY, PRODUCTION_DATE, FACTORY_NO) VALUES (?, ?, ?, ?, ?)";
@@ -206,17 +178,7 @@ public class MgmtDao {
             return false;
         }
     }
-    // 생산일 수정
-    public boolean updateProductionDate(int productionId, LocalDateTime newProductionDate) {
-        String query = "UPDATE Production SET PRODUCTION_DATE = ? WHERE PRODUCTION_ID = ?";
-        try {
-            int result = jdbcTemplate.update(query, newProductionDate, productionId);
-            return result > 0; // 수정된 행이 있으면 true 반환
-        } catch (Exception e) {
-            log.error("생산일 수정 실패 : {}", e.getMessage());
-            return false;
-        }
-    }
+
     // 생산일 조회
     public List<LocalDateTime> getAllProductionDates() {
         String query = "SELECT PRODUCTION_DATE FROM Production ORDER BY PRODUCTION_DATE DESC";
@@ -230,24 +192,15 @@ public class MgmtDao {
     }
 
     // 작업 등록
-    public boolean insertWork(Work work) {
+    public boolean insertWork(Process work) {
         String sql = """
-        INSERT INTO Work 
-        (PROCESS_NO, WORK_ORDER, ASSIGNED_TO, START_TIME, END_TIME, RESULT, 
-         BATCH_INPUT, MATERIAL_INPUT, INPUT_QUANTITY)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) """;
+        INSERT INTO Process (PROCESS_ID, PROCESS_NAME, PRODUCT_ID) VALUES (?, ?, ?)""";
         try {
             int result = jdbcTemplate.update(sql,
-                    work.getWorkId(),          // 작업 번호, ID
-                    work.getProcessNo(),       // 어떤 공정에 속한 작업인가
-                    work.getWorkOrder(),       // 작업 지시 내용
-                    work.getAssignedTo(),      // 담당자(작업 수행 하는 사람)
-                    work.getStartTime(),       // 작업 시작 시간
-                    work.getEndTime(),         // 작업 종료 시간
-                    work.getResult(),          // 작업 결과 상태 (진행중 or 완료)
-                    work.getBatchInput(),      // 투입된 자재 배치 정보
-                    work.getMaterialInput(),   // 투입된 자재명
-                    work.getInputQuantity());  // 자재 투입 수량
+                    work.getPROCESS_ID(),          // 작업 번호, ID
+                    work.getPROCESS_NAME(),       // 공정 번호
+                    work.getPRODUCT_ID()          // 배치 번호
+            );
             return result > 0; // 성공 시 true
         } catch (Exception e) {
             log.error("작업 등록 실패 : {}", e.getMessage());
@@ -259,22 +212,24 @@ public class MgmtDao {
     public List<Work> getAllWorks() {
         String sql = "SELECT * FROM Work ORDER BY WORK_ID DESC";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            Work work = new Work();
-            work.setWorkId(rs.getInt("WORK_ID"));
-            work.setProcessNo(rs.getInt("PROCESS_NO"));
-            work.setWorkOrder(rs.getString("WORK_ORDER"));
-            work.setAssignedTo(rs.getString("ASSIGNED_TO"));
-            work.setStartTime(rs.getTimestamp("START_TIME") != null ?
-                    rs.getTimestamp("START_TIME").toLocalDateTime() : null);
-            work.setEndTime(rs.getTimestamp("END_TIME") != null ?
-                    rs.getTimestamp("END_TIME").toLocalDateTime() : null);
-            work.setResult(rs.getString("RESULT"));
-            work.setBatchInput(rs.getString("BATCH_INPUT"));
-            work.setMaterialInput(rs.getString("MATERIAL_INPUT"));
-            work.setInputQuantity(rs.getInt("INPUT_QUANTITY"));
-            return work;
-        });
+        return jdbcTemplate.query(sql, new MgmtDao.WorkRowMapper());
+    }
+    private static class WorkRowMapper implements RowMapper<Work> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public Work mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Work(
+                    rs.getInt("WORKORDER_ID"),
+                    rs.getInt("PROCESS_ID"),
+                    rs.getInt("BATCH_ID"),
+                    rs.getInt("QTY"),
+                    rs.getInt("WORKER"),
+                    rs.getTimestamp("START_DATE").toLocalDateTime(),
+                    rs.getTimestamp("END_DATE").toLocalDateTime()
+            );
+        }
     }
 
     // 작업 지시 및 배정
@@ -286,7 +241,7 @@ public class MgmtDao {
         try {
             int result = jdbcTemplate.update(sql,
                     work.getProcessNo(),
-                    work.getWorkOrder(),
+                    work.getWorkId(),
                     work.getAssignedTo(),
                     work.getStartTime(),      // 작업 시작 시간
                     "지시됨"                   // 기본 상태 : 지시됨
@@ -373,6 +328,12 @@ public class MgmtDao {
         }
     }
 
+    // 사원 검색 - 이름 -> 사원번호
+    public List<Employee> getEmployeeId(String name) {
+        String query = "SELECT * FROM Employee WHERE EMP_name = ?";
+        return jdbcTemplate.query(query, new EmpRowMapper(), name);
+    }
+
     // 원자재 조회 - 전체
     public List<Material> matList() {
         String query = "SELECT * FROM material";
@@ -388,11 +349,11 @@ public class MgmtDao {
     // 원자재 등록
     public boolean insertMaterial(Material mat) {
         int result = 0;
-        String query = "INSERT INTO material(material_id, material_name, type) VALUES(?, ?, ?)";
+        String query = "INSERT INTO material(material_id, material_name, type) VALUES(seq_mat.nextval, ?, ?)";
         try {
             // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
             // query 뒤에는 위쪽 ?에 들어갈 것들.
-            result = jdbcTemplate.update(query, mat.getId(), mat.getName(), mat.getType());
+            result = jdbcTemplate.update(query, mat.getName(), mat.getType());
 
         } catch (Exception e) {
             // 로그 메시지. lombok에서 제공함.
