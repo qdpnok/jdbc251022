@@ -333,9 +333,14 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 원자재 관리 - 원자재 정보 수정
     private void updateMaterial() {
-        System.out.print("수정할 원자재 id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        System.out.print("수정할 원자재 이름: ");
+        List<Material> updateMat = mgmtDao.matNameList(sc.nextLine());
+
+        if(updateMat.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 원자재가 없습니다.");
+            return;
+        }
+        int id = updateMat.get(0).getId();
 
         System.out.print("원자재 이름: ");
         String name = sc.nextLine();
@@ -349,9 +354,14 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 원자재 관리 - 원자재 삭제
     private void deleteMaterial() {
-        System.out.print("삭제할 원자재 id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        System.out.print("삭제할 원자재 이름: ");
+        List<Material> updateMat = mgmtDao.matNameList(sc.nextLine());
+
+        if(updateMat.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 원자재가 없습니다.");
+            return;
+        }
+        int id = updateMat.get(0).getId();
 
         boolean isSuccess = mgmtDao.deleteMaterial(new Material(id, null, null));
         System.out.println("원자재 삭제 " + (isSuccess ? "성공" : "실패"));
@@ -487,13 +497,24 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 입고 관리 - 입고 등록
     private void insertInbound() {
-        System.out.print("원자재 번호: ");
-        int matId = sc.nextInt();
-        sc.nextLine();
+        System.out.print("원자재 이름: ");
+        List<Material> updateMat = mgmtDao.matNameList(sc.nextLine());
+
+        if(updateMat.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 원자재가 없습니다.");
+            return;
+        }
+        int matId = updateMat.get(0).getId();
 
         // 사원 이름으로 id 가져오기
         System.out.print("사원 이름: ");
-        int empId = mgmtDao.getEmployeeId(sc.nextLine()).get(0).getId();
+
+        List<Employee> emp = mgmtDao.getEmployeeId(sc.nextLine());
+        if(emp.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 사원이 없습니다.");
+            return;
+        }
+        int empId = emp.get(0).getId();
 
         System.out.print("수량: ");
         int qty = sc.nextInt();
@@ -505,6 +526,7 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // 입고 관리 - 배치 등록
     private void insertBatch() {
+        // !!!!! 완제품 이름으로 검색하게 바꾸기
         System.out.print("완제품 번호: ");
         int prodId = sc.nextInt();
         sc.nextLine();
@@ -562,9 +584,13 @@ public class ConsoleRunner implements CommandLineRunner {
         int batchId = sc.nextInt();
         sc.nextLine();
 
-        System.out.print("출고 담당자: ");
-        int empId = sc.nextInt();
-        sc.nextLine();
+        System.out.print("출고 담당자 이름: ");
+        List<Employee> emp = mgmtDao.getEmployeeId(sc.nextLine());
+        if(emp.isEmpty()) {
+            System.out.println("해당 이름으로 등록된 사원이 없습니다.");
+            return;
+        }
+        int empId = emp.get(0).getId();
 
         System.out.print("수량: ");
         int qty = sc.nextInt();
