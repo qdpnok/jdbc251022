@@ -41,8 +41,6 @@ public class ConsoleRunner implements CommandLineRunner {
             int sel = sc.nextInt();
             sc.nextLine();
 
-            boolean isSuccess;
-
             switch (sel) {
                 case 1: mgmt(); break;
                 case 2: prodWork(); break;
@@ -493,9 +491,9 @@ public class ConsoleRunner implements CommandLineRunner {
         int matId = sc.nextInt();
         sc.nextLine();
 
-        System.out.print("사원 번호: ");
-        int empId = sc.nextInt();
-        sc.nextLine();
+        // 사원 이름으로 id 가져오기
+        System.out.print("사원 이름: ");
+        int empId = mgmtDao.getEmployeeId(sc.nextLine()).get(0).getId();
 
         System.out.print("수량: ");
         int qty = sc.nextInt();

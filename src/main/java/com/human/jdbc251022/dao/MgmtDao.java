@@ -373,6 +373,12 @@ public class MgmtDao {
         }
     }
 
+    // 사원 검색 - 이름 -> 사원번호
+    public List<Employee> getEmployeeId(String name) {
+        String query = "SELECT * FROM Employee WHERE EMP_name = ?";
+        return jdbcTemplate.query(query, new EmpRowMapper(), name);
+    }
+
     // 원자재 조회 - 전체
     public List<Material> matList() {
         String query = "SELECT * FROM material";
