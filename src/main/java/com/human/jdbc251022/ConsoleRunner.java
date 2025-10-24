@@ -303,7 +303,7 @@ public class ConsoleRunner implements CommandLineRunner {
         }
     }
 
-    // 원자재 입고 관리 메뉴
+    // 입고 관리 메뉴
     private void matBatchIn() {
         System.out.println("===== 입고 관리 =====");
         System.out.println("[1]입고 조회");
@@ -321,17 +321,17 @@ public class ConsoleRunner implements CommandLineRunner {
         }
     }
 
-    // 재고 및 배치 관리 - 입고 조회
+    // 입고 관리 - 입고 조회
     private void ibList() {
         List<Inbound> ibList = inOutMatMgmt.ibList();
         if(ibList.isEmpty()) {
-            System.out.println("재고가 없습니다.");
+            System.out.println("입고 기록이 없습니다.");
             return;
         }
         for(Inbound e : ibList) System.out.println(e);
     }
 
-    // 재고 및 배치 관리 - 입고 등록
+    // 입고 관리 - 입고 등록
     private void insertInbound() {
         System.out.print("입고 번호: ");
         int id = sc.nextInt();
@@ -353,7 +353,7 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("입고 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
-    // 재고 및 배치 관리 - 배치 등록
+    // 입고 관리 - 배치 등록
     private void insertBatch() {
         System.out.print("배치 번호: ");
         int id = sc.nextInt();
@@ -378,22 +378,51 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.println("배치 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
-    // 원자재 출고 메뉴
+    // 출고 메뉴
     private void matOut() {
-        System.out.println("===== 원자재 입고 관리 =====");
-        System.out.println("[1]입고 조회");
-        System.out.println("[2]입고 등록");
-        System.out.println("[3]배치 등록");
-
+        System.out.println("===== 출고 관리 =====");
+        System.out.println("[1]출고 조회");
+        System.out.println("[2]출고 등록");
 
         int sel = sc.nextInt();
         sc.nextLine();
 
         switch(sel) {
-            case 1: ibList(); break;
-            case 2: insertInbound(); break;
-            case 3: insertBatch(); break;
+            case 1: obList(); break;
+            case 2: insertOutbound(); break;
         }
+    }
+
+    // 출고 관리 - 출고 조회
+    private void obList() {
+        List<Outbound> obList = inOutMatMgmt.obList();
+        if(obList.isEmpty()) {
+            System.out.println("출고 기록이 없습니다.");
+            return;
+        }
+        for(Outbound e : obList) System.out.println(e);
+    }
+
+    // 출고 관리 - 출고 등록
+    private void insertOutbound() {
+        System.out.print("출고 번호: ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("배치 번호: ");
+        int batchId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("출고 담당자: ");
+        int empId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("수량: ");
+        int qty = sc.nextInt();
+        sc.nextLine();
+
+        boolean isSuccess = inOutMatMgmt.insertOutbound(new Outbound(id, batchId, empId, qty, null));
+        System.out.println("출고 등록 " + (isSuccess ? "성공" : "실패"));
     }
 
     // 품질관리 메뉴

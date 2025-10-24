@@ -34,7 +34,7 @@ public class InOutMatMgmt {
                     rs.getInt("material_id"),
                     rs.getInt("emp_id"),
                     rs.getInt("qty"),
-                    rs.getTimestamp("reg_date").toLocalDateTime()
+                    rs.getTimestamp("ib_date").toLocalDateTime()
             );
         }
     }
@@ -68,6 +68,45 @@ public class InOutMatMgmt {
         } catch (Exception e) {
             // 로그 메시지. lombok에서 제공함.
             log.error("배치 등록 실패 : {}", e.getMessage());
+        }
+        return result > 0;
+    }
+
+    // 출고 조회
+    public List<Outbound> obList() {
+        String query = "SELECT * FROM outbound";
+        return jdbcTemplate.query(query, new InOutMatMgmt.OBRowMapper());
+    }
+
+    private static class OBRowMapper implements RowMapper<Outbound> {
+
+        // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
+        // 행 번호로 자동으로 돌아서 Member에 넣어준다
+        @Override
+        public Outbound mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Outbound(
+                    rs.getInt("ob_id"),
+                    rs.getInt("batch_id"),
+                    rs.getInt("emp_id"),
+                    rs.getInt("qty"),
+                    rs.getTimestamp("ob_date").toLocalDateTime()
+            );
+        }
+    }
+
+    // 출고 등록
+    public boolean insertOutbound(Outbound ob) {
+        int result = 0;
+        String query = "INSERT INTO outbound(ob_id, batch_id, emp_id, qty) VALUES(?, ?, ?, ?)";
+        try {
+            // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
+            // query 뒤에는 위쪽 ?에 들어갈 것들.
+            result = jdbcTemplate.update(query, ob.getId(), ob.getBatchId(), ob.getEmpId(),
+                    ob.getQty());
+
+        } catch (Exception e) {
+            // 로그 메시지. lombok에서 제공함.
+            log.error("출고 등록 실패 : {}", e.getMessage());
         }
         return result > 0;
     }
