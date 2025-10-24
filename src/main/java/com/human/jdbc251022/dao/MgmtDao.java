@@ -23,8 +23,15 @@ public class MgmtDao {
         String query = "SELECT * FROM employee";
         return jdbcTemplate.query(query, new MgmtDao.EmpRowMapper());
     }
+    public void listEmployee() {
+    }
+    public void assignManagerToDept() {
+    }
 
-    private static class EmpRowMapper implements RowMapper<Employee> {
+    public void getManager() {
+    }
+
+    static class EmpRowMapper implements RowMapper<Employee> {
 
         // ResultSet -> DB에서 넘어온 결과, rowNum -> 행 번호
         // 행 번호로 자동으로 돌아서 Member에 넣어준다
@@ -42,7 +49,7 @@ public class MgmtDao {
     }
 
     // 사원 조회 (단건)
-    public Employee getEmployee(String empId) {
+    public Employee getEmployee() {
         String query = "SELECT * FROM Employee WHERE EMP_ID = ?";
         try {
             return jdbcTemplate.queryForObject(query,
@@ -90,21 +97,19 @@ public class MgmtDao {
     }
 
     // 사원 삭제
-    public boolean deleteEmployee(String empid) {
-        int result = 0;
-        String query = "DELETE FROM Employee WHERE empid = ?";
+    public boolean deleteEmployee(int empId) {
+        String query = "DELETE FROM Employee WHERE EMP_ID = ?";
         try {
-            result = jdbcTemplate.update(query, empid);
-
+            int result = jdbcTemplate.update(query, empId);
+            return result > 0;  // 삭제된 행이 있으면 true 반환
         } catch (Exception e) {
-            // 로그 메시지. lombok에서 제공함.
             log.error("사원 삭제 실패 : {}", e.getMessage());
+            return false;
         }
-        return result > 0;
     }
 
     // 부서 등록
-    public boolean insertDept(Department dept) {
+    public boolean insertDept() {
         String sql = "INSERT INTO Department (DEPT_ID, DEPT_NAME, TYPE, FACTORY_NO, MANAGER, CREATE_DATE) VALUES (?, ?, ?, ?, ?, ?)";
         int result = 0;
         try {
@@ -118,7 +123,7 @@ public class MgmtDao {
     }
 
     // 부서 삭제
-    public boolean deleteDept(int deptId) {
+    public boolean deleteDept() {
         String query = "DELETE FROM Department WHERE DEPT_ID = ?";
         try {
             int result = jdbcTemplate.update(query, deptId);

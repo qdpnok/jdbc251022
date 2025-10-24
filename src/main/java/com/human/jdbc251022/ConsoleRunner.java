@@ -4,6 +4,9 @@ import com.human.jdbc251022.dao.InOutMatMgmt;
 import com.human.jdbc251022.dao.MemberDao;
 import com.human.jdbc251022.dao.MgmtDao;
 import com.human.jdbc251022.model.*;
+import com.human.jdbc251022.model.Employee;
+import com.human.jdbc251022.model.Material;
+import com.human.jdbc251022.model.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -90,17 +93,70 @@ public class ConsoleRunner implements CommandLineRunner {
     // 인사/조직 관리 메뉴
     private void hrOrgMgmt() {
         System.out.println("===== 인사/조직 관리 =====");
-        System.out.println("[1]사원 정보 관리");
-        System.out.println("[2]부서 및 공정 관리");
-
+        System.out.println("[1] 사원 등록");
+        System.out.println("[2] 사원 조회");
+        System.out.println("[3] 사원 전체 조회");
+        System.out.println("[4] 사원 삭제");
+        System.out.println("[5] 부서 등록");
+        System.out.println("[6] 부서 삭제");
+        System.out.println("[7] 담당자 지정");
+        System.out.println("[8] 담당자 조회");
+        System.out.println("[0] 뒤로가기");
+        System.out.print("선택 ▶ ");
         int sel = sc.nextInt();
         sc.nextLine();
 
         switch(sel) {
-            case 1: break;
-            case 2: break;
+            case 1: insertEmployee(); break;
+            case 2: getEmployee(); break;
+            case 3: listEmployee(); break;
+            case 4: deleteEmployee(); break;
+            case 5: insertDept(); break;
+            case 6: deleteDept(); break;
+            case 7: assignManagerToDept(); break;
+            case 8: getManager(); break;
+            case 0: { return; }
+            default : System.out.println("잘못된 선택입니다.");
         }
     }
+
+    private void insertEmployee() {
+        System.out.print("사원 이름 : ");
+    }
+
+    private void getEmployee() {
+        System.out.print("조회할 사원 : ");
+    }
+
+    private void listEmployee() {
+        List<Employee> listEmployee = mgmtDao.listEmployee();
+        if (listEmployee.isEmpty()) {
+            System.out.println("조회되는 정보가 없습니다.");
+            return;
+        }
+    }
+
+    private void deleteEmployee() {
+        System.out.print("삭제할 사원 : ");
+    }
+
+    private void insertDept() {
+        System.out.print("등록할 부서명 : ");
+    }
+
+    private void deleteDept() {
+        System.out.print("삭제할 부서명 : ");
+    }
+
+    private void assignManagerToDept() {
+        System.out.print("지정할 담당자명 : ");
+    }
+
+    private void getManager() {
+        System.out.print("조회할 담당자명 : ");
+    }
+
+
 
     // 원자재/재고 관리 메뉴
     private void matInvMgmt() {
