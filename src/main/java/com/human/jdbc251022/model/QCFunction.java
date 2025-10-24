@@ -90,8 +90,8 @@ public class QCFunction {
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                qc = new QCVO(rs.getInt("QC_ID"), rs.getString("QC.ITEM_ID"), rs.getString("STATUS"), rs.getDate("QC_DATE"), rs.getInt("EMP_ID"));
-                qc.setQcId(rs.getInt("QC_ID"));
+                qc = new QCVO(rs.getString("QC_ID"), rs.getString("QC.ITEM_ID"), rs.getString("STATUS"), rs.getDate("QC_DATE"), rs.getInt("EMP_ID"));
+                qc.setQcId(rs.getString("QC_ID"));
                 qc.setSampleId(rs.getInt("SAMPLE_ID"));
                 qc.setTestItem(rs.getString("TEST_ITEM"));
                 qc.setStatus(rs.getString("STATUS"));
