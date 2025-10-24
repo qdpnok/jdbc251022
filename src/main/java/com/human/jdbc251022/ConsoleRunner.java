@@ -94,14 +94,14 @@ public class ConsoleRunner implements CommandLineRunner {
     private void hrOrgMgmt() {
         System.out.println("===== 인사/조직 관리 =====");
         System.out.println("[1] 사원 등록");
-        System.out.println("[2] 사원 조회");
+        System.out.println("[2] 사원 ID 조회");
         System.out.println("[3] 사원 전체 조회");
-        System.out.println("[4] 사원 삭제");
+        System.out.println("[4] 사원 ID 삭제");
         System.out.println("[5] 부서 등록");
         System.out.println("[6] 부서 삭제");
-        System.out.println("[7] 담당자 지정");
-        System.out.println("[8] 담당자 조회");
-        System.out.println("[0] 뒤로가기");
+        System.out.println("[7] 부서 담당자 지정");
+        System.out.println("[8] 부서 담당자 조회");
+        System.out.println("[0] 처음으로");
         System.out.print("선택 ▶ ");
         int sel = sc.nextInt();
         sc.nextLine();
@@ -120,41 +120,138 @@ public class ConsoleRunner implements CommandLineRunner {
         }
     }
 
+    private int readInt() {
+        return 0;
+    }
+
     private void insertEmployee() {
+        System.out.println("\n[사원 등록]");
+        System.out.print("사원 ID : ");
+        int id = sc.nextInt();
+        sc.nextLine();
+
         System.out.print("사원 이름 : ");
+        String name = sc.nextLine();
+
+        System.out.print("직무 : ");
+        String job = sc.nextLine();
+
+        System.out.print("부서 ID : ");
+        int deptId = sc.nextInt();
+        sc.nextLine();
+
+        System.out.print("연봉 : ");
+        int sal = sc.nextInt();
+        sc.nextLine();
+
+        Employee emp = new Employee(id, name, job, deptId, sal);
+        boolean ok = mgmtDao.insertEmployee(emp);
+        System.out.println(ok ? "사원 등록 성공" : "사원 등록 실패");
     }
 
     private void getEmployee() {
-        System.out.print("조회할 사원 : ");
+        System.out.println("\n[사원 조회]");
+        System.out.print("조회할 사원 ID: ");
+        int id = readInt();
+        Employee emp = mgmtDao.getEmployee(id);
+        if (emp == null) {
+            System.out.println("해당 ID의 사원이 없습니다.");
+            return;
+        }
+        System.out.println(emp);
     }
 
     private void listEmployee() {
-        List<Employee> listEmployee = mgmtDao.listEmployee();
-        if (listEmployee.isEmpty()) {
+        System.out.println("\n[사원 전체 조회]");
+        List<Employee> list = mgmtDao.listEmployee();
+        if (list.isEmpty()) {
             System.out.println("조회되는 정보가 없습니다.");
             return;
         }
+        list.forEach(System.out::println);
     }
 
     private void deleteEmployee() {
-        System.out.print("삭제할 사원 : ");
+        System.out.println("\n[사원 삭제]");
+        System.out.print("삭제할 사원 ID: ");
+        int id = readInt();
+        boolean ok = mgmtDao.deleteEmployee(id);
+        System.out.println(ok ? "사원 삭제 성공" : "사원 삭제 실패");
     }
 
     private void insertDept() {
-        System.out.print("등록할 부서명 : ");
+        System.out.println("\n[부서 등록]");
+        System.out.print("부서 ID : ");
+        int id = readInt();
+
+        if (mgmtDao.getDepartment(id) != null) {
+            System.out.println("이미 존재하는 부서 ID입니다.");
+            return;
+        }
+
+        System.out.print("부서명: ");
+        String name = sc.nextLine().trim();
+
+        Department dept = new Department(id, name);
+        boolean ok = mgmtDao.insertDept(dept);
+        System.out.println(ok ? "부서 등록 성공" : "부서 등록 실패");
     }
 
     private void deleteDept() {
-        System.out.print("삭제할 부서명 : ");
+        System.out.println("\n[부서 삭제]");
+        System.out.print("삭제할 부서 ID: ");
+        int id = readInt();
+        boolean ok = mgmtDao.deleteDept(id);
+        System.out.println(ok ? "부서 삭제 성공" : "부서 삭제 실패(존재하지 않음)");
     }
 
     private void assignManagerToDept() {
-        System.out.print("지정할 담당자명 : ");
+        System.out.println("\n[부서 담당자(매니저) 지정]");
+        System.out.print("부서 ID: ");
+        int deptId = readInt();
+
+        Department dept = mgmtDao.getDepartment(deptId);
+        if (dept == null) {
+            System.out.println("존재하지 않는 부서 ID입니다.");
+            return;
+        }
+
+        System.out.print("담당자(사원) ID: ");
+        int empId = readInt();
+
+        Employee emp = mgmtDao.getEmployee(empId);
+        if (emp == null) {
+            System.out.println("존재하지 않는 사원 ID입니다.");
+            return;
+        }
+
+        boolean ok = mgmtDao.assignManagerToDept(deptId, empId);
+        System.out.println(ok ? "담당자 지정 완료" : "담당자 지정 실패");
     }
 
     private void getManager() {
-        System.out.print("조회할 담당자명 : ");
+        System.out.println("\n[부서 담당자 조회]");
+        System.out.print("부서 ID: ");
+        int deptId = readInt();
+
+        Department dept = mgmtDao.getDepartment(deptId);
+        if (dept == null) {
+            System.out.println("존재하지 않는 부서 ID입니다.");
+            return;
+        }
+
+        Employee mgr = mgmtDao.getManager(deptId);
+        if (mgr == null) {
+            System.out.println("지정된 담당자가 없습니다.");
+            return;
+        }
+        System.out.println("부서: " + dept.getName() + " (ID: " + dept.getId() + ")");
+        System.out.println("담당자: " + mgr);
     }
+
+
+
+
 
 
 

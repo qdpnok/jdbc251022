@@ -21,4 +21,7 @@ public class Department {
     public Department(int deptId, String deptName, String type, int factoryNo,
                       String manager, LocalDateTime createDate) {
     }
+
+    public Department(int id, String name) {
+    }
 }
