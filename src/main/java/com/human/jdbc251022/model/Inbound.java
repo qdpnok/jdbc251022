@@ -4,7 +4,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter @Setter @ToString
+@Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 public class Inbound {
     private int id;
@@ -12,4 +12,14 @@ public class Inbound {
     private int empId;
     private int qty;
     private LocalDateTime ibDate;
+
+    @Override
+    public String toString() {
+        return "입고 번호: " + id + "\n" +
+                "원자재 번호: " + matId + "\n" +
+                "담당자: " + empId + "\n" +
+                "수량: " + qty + "\n" +
+                "입고일: " + ibDate + "\n" +
+                "-".repeat(10);
+    }
 }
