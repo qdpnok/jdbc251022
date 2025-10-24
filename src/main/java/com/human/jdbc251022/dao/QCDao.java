@@ -53,7 +53,7 @@ public class QCDao {
                             rs.getString("TEST_ITEM"),
                             rs.getString("STATUS"),
                             rs.getDate("QC_DATE"),
-                            rs.getInt("TESTER")));
+                            rs.getInt("TESTER")), qcId);
         } catch (Exception e) {
             log.error("QC 조회 실패: {}", e.getMessage());
             return null;
@@ -120,7 +120,7 @@ public class QCDao {
                     rs.getInt("SAMPLE_ID"),
                     rs.getInt("BATCH_ID"),
                     rs.getInt("RESULT_ID"),
-                    String.valueOf(rs.getInt("SAMPLE_DATE"))
+                    rs.getString("SAMPLE_DATE")
             );
         }
     }
@@ -204,7 +204,7 @@ public class QCDao {
                     rs.getDouble(" PE"),
                     rs.getString(" PROCESS_ID"),
                     rs.getString(" EMP_ID"),
-                    String.valueOf(rs.getInt("PRODUCTION_DATE"))
+                    rs.getString(" PRODUCTION_DATE")
             );
         }
     }
