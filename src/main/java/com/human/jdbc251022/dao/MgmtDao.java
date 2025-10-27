@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -98,12 +100,11 @@ public class MgmtDao {
 
     // 부서 등록
     public boolean insertDept(Department dept) {
-        String sql = "INSERT INTO Department (DEPT_ID, DEPT_NAME, TYPE, FACTORY_NO, MANAGER, CREATE_DATE) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Department (DEPT_ID, DEPT_NAME) VALUES (?, ?)";
         int result = 0;
         try {
             result = jdbcTemplate.update(sql,
-                    dept.getId(), dept.getName(), dept.getType(),
-                    dept.getFactoryNO(), dept.getManager(), dept.getCreateDate());
+                    dept.getId(), dept.getName());
         } catch (Exception e) {
             log.error("부서 등록 실패 : {}", e.getMessage());
         }
@@ -153,11 +154,7 @@ public class MgmtDao {
         public Department mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Department(
                     rs.getInt("dept_id"),
-                    rs.getString("dept_name"),
-                    rs.getString("type"),
-                    rs.getInt("factory_no"),
-                    rs.getString("manager"),
-                    rs.getTimestamp("create_date").toLocalDateTime()
+                    rs.getString("dept_name")
             );
         }
     }
@@ -211,50 +208,47 @@ public class MgmtDao {
     }
 
     // 작업 목록 조회
-    public List<Work> getAllWorks() {
+    public List<WorkOrder> getAllWorks() {
         String sql = "SELECT * FROM Work ORDER BY WORK_ID DESC";
 
         return jdbcTemplate.query(sql, new MgmtDao.WorkRowMapper());
     }
-    private static class WorkRowMapper implements RowMapper<Work> {
+    private static class WorkRowMapper implements RowMapper<WorkOrder> {
         @Override
-        public Work mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Work w = new Work();
-            w.setWorkId(rs.getInt("WORK_ID"));
-            w.setProcessNo(rs.getInt("PROCESS_NO"));
-            w.setWorkOrder(rs.getString("WORK_ORDER"));
-            w.setAssignedTo(Integer.parseInt(rs.getString("WORKER")));
+        public WorkOrder mapRow(ResultSet rs, int rowNum) throws SQLException {
+            WorkOrder w = new WorkOrder();
+            w.setWorkOrderId(rs.getInt("WORKORDER_ID"));
+            w.setProcessId(rs.getInt("PROCESS_ID"));
+            w.setWorker(Integer.parseInt(rs.getString("WORKER")));
 
             // NULL 방지 처리 (Timestamp → LocalDateTime)
-            if (rs.getTimestamp("START_TIME") != null)
-                w.setStartTime(rs.getTimestamp("START_TIME").toLocalDateTime());
-            if (rs.getTimestamp("END_TIME") != null)
-                w.setEndTime(rs.getTimestamp("END_TIME").toLocalDateTime());
+            if (rs.getTimestamp("START_DATE") != null)
+                w.setStartDate(LocalDate.from(rs.getTimestamp("START_DATE").toLocalDateTime()));
+            if (rs.getTimestamp("END_DATE") != null)
+                w.setEndDate(LocalDate.from(rs.getTimestamp("END_DATE").toLocalDateTime()));
 
-            w.setResult(rs.getString("RESULT"));
-            w.setBatchInput(rs.getString("BATCH_INPUT"));
-            w.setMaterialInput(rs.getString("MATERIAL_INPUT"));
-            w.setInputQuantity(rs.getInt("INPUT_QUANTITY"));
+            w.setBatchId(rs.getInt("BATCH_ID"));
+            w.setQty(rs.getInt("QTY"));
             return w;
         }
     }
 
 
     // 작업 지시 및 배정
-    public boolean insertWorkOrder(Work work) {
+    public boolean insertWorkOrder(WorkOrder work) {
         String sql = """
-        INSERT INTO Work (WORKORDER_ID, PROCESS_ID, BATCH_ID, QTY, START_DATE, END_DATE, WORKER)
+        INSERT INTO WORKORDER (WORKORDER_ID, PROCESS_ID, BATCH_ID, QTY, START_DATE, END_DATE, WORKER)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-    """;
+        """;
         try {
             int result = jdbcTemplate.update(sql,
-                    work.getWorkId(),
-                    work.getProcessNo(),
+                    work.getWorkOrderId(),
+                    work.getProcessId(),
                     work.getBatchId(),
                     work.getQty(),
-                    work.getStartTime(),
-                    work.getEndTime(),
-                    work.getAssignedTo()
+                    java.sql.Date.valueOf(work.getStartDate()), // LocalDate → SQL Date 변환
+                    java.sql.Date.valueOf(work.getEndDate()),
+                    work.getWorker()
             );
             return result > 0;
         } catch (Exception e) {
