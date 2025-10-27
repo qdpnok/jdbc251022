@@ -9,7 +9,7 @@ import java.util.Date;
 @AllArgsConstructor @NoArgsConstructor
 
 public class QCVO {
-    private int qcId;
+    private String qcId;
     private int sampleId;
     private String testItem;
     private String status;
@@ -17,7 +17,12 @@ public class QCVO {
     private Date qcDate;
     private int tester;
 
-    public QCVO(int qcId, String testItem, String status, Date qcDate, int tester){
+    public QCVO(String qcId, String testItem, String status, Date qcDate, int tester){
 
+        this.qcId = qcId;
+        this.testItem = testItem;
+        this.status = status;
+        this.qcDate= qcDate;
+        this.tester = tester;
     }
 }

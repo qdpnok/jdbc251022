@@ -23,7 +23,7 @@ public class QCDao {
 
     // QC 전체 조회
     public List<QCVO> qcList() {
-        String query = "SELECT * FROM qcvo";
+        String query = "SELECT * FROM QC";
         return jdbcTemplate.query(query, new QCDao.QCMapper());
     }
 
@@ -32,28 +32,28 @@ public class QCDao {
         @Override
         public QCVO mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new QCVO(
-                    rs.getInt("QC_ID"),
+                    rs.getString("QC_ID"),
                     rs.getInt("SAMPLE_ID"),
-                    rs.getString("QC.ITEM_ID"),
+                    rs.getString("TEST_ITEM"),
                     rs.getString("STATUS"),
-                    rs.getString("passFail"),
+                    rs.getString("PASS_FAIL"),
                     rs.getDate("QC_DATE"),
-                    rs.getInt("EMP_ID")
+                    rs.getInt("TESTER")
             );
         }
 }
 
     // QC 조회 (단건)
     public QCVO getQCVO(String qcId) {
-        String query = "SELECT * FROM QCVO WHERE QC_ID = ?";
+        String query = "SELECT * FROM QC WHERE QC_ID = ?";
         try {
             return jdbcTemplate.queryForObject(query,
                     (rs, rowNum) -> new QCVO(
-                            rs.getInt("QC_ID"),
-                            rs.getString("QC.ITEM_ID"),
+                            rs.getString("QC_ID"),
+                            rs.getString("TEST_ITEM"),
                             rs.getString("STATUS"),
                             rs.getDate("QC_DATE"),
-                            rs.getInt("EMP_ID")));
+                            rs.getInt("TESTER")), qcId);
         } catch (Exception e) {
             log.error("QC 조회 실패: {}", e.getMessage());
             return null;
@@ -62,7 +62,7 @@ public class QCDao {
     // QC 번호 등록
     public boolean insertQCVO(QCVO qcvo) {
         int result = 0;
-        String query = "INSERT INTO QCVO (QC_ID, SAMPLE_ID, TEST_ITEM, STATUS, PASS_FAIL, QC_DATE, TESTER) VALUES(?, ?, ?, ?, ?)";
+        String query = "INSERT INTO QC (QC_ID, SAMPLE_ID, TEST_ITEM, STATUS, PASS_FAIL, QC_DATE, TESTER) VALUES(?, ?, ?, ?, ?)";
         try {
             // 성공하면 성공한 갯수가 return. 1개 성공하면 1, 2개 성공하면 2
             // query 뒤에는 위쪽 ?에 들어갈 것들.
@@ -79,7 +79,7 @@ public class QCDao {
     // QC 정보 수정
     public boolean updateQCVO(QCVO qcvo) {
         int result = 0;
-        String query = "UPDATE QCVO SET pwd = ?";
+        String query = "UPDATE QC SET pwd = ?";
         try {
             result = jdbcTemplate.update(query, qcvo.getQcId(), qcvo.getSampleId(),
                     qcvo.getTestItem(), qcvo.getStatus(), qcvo.getPassFail(), qcvo.getQcDate(), qcvo.getTester());
@@ -120,7 +120,7 @@ public class QCDao {
                     rs.getInt("SAMPLE_ID"),
                     rs.getInt("BATCH_ID"),
                     rs.getInt("RESULT_ID"),
-                    String.valueOf(rs.getInt("SAMPLE_DATE"))
+                    rs.getString("SAMPLE_DATE")
             );
         }
     }
@@ -204,7 +204,7 @@ public class QCDao {
                     rs.getDouble(" PE"),
                     rs.getString(" PROCESS_ID"),
                     rs.getString(" EMP_ID"),
-                    String.valueOf(rs.getInt("PRODUCTION_DATE"))
+                    rs.getString(" PRODUCTION_DATE")
             );
         }
     }

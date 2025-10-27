@@ -762,19 +762,15 @@ public class ConsoleRunner implements CommandLineRunner {
     private void getQCVO() {
         System.out.print("검색할 QC명 입력: ");
 
-        List<QCVO> qcList = qcDao.qcList();
-        if(qcList.isEmpty()) {
-            System.out.println("해당 이름으로 등록된 QC명이 없습니다.");
-            return;
-        }
-        for(QCVO e : qcList) System.out.println(e);
+        QCVO qcList = qcDao.getQCVO(sc.nextLine());
+        System.out.println(qcList);
     }
 
     // QC 관리 - QC 등록
     private void insertQCVO() {
         System.out.print("QC id: ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        String id = sc.nextLine();
+
 
         System.out.print("Sample id: ");
         int sample_id = sc.nextInt();
@@ -797,9 +793,9 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // QC 관리 - QC 정보 수정
     private void updateQCVO() {
+
         System.out.print("QC id 수정: ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        String id = sc.nextLine();
 
         System.out.print("Sample id 수정: ");
         int sample_id = sc.nextInt();
@@ -824,7 +820,7 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.print("담당자 id 수정: ");
         int tester = sc.nextInt();
 
-        boolean isSuccess = qcDao.insertQCVO(new QCVO(id, sample_id, name, std,  type, date, tester));
+        boolean isSuccess = qcDao.updateQCVO(new QCVO(id, sample_id, name, std,  type, date, tester));
         System.out.println("QC 정보 수정 " + (isSuccess ? "성공" : "실패"));
     }
 
@@ -893,6 +889,7 @@ public class ConsoleRunner implements CommandLineRunner {
     private void getsample() {
         System.out.print("검색할 Sample 입력: ");
         int sampleId = sc.nextInt();
+        Sample getsample = qcDao.getSample(sampleId);
         sc.nextLine();
 
         Sample sample = null;
@@ -902,7 +899,7 @@ public class ConsoleRunner implements CommandLineRunner {
             return;
         }
         System.out.println("----- 샘플 정보 -----");
-        System.out.println(sample.toString());
+        System.out.println(getsample.toString());
     }
 
     // Sample 관리 - Sample 등록
@@ -1009,8 +1006,9 @@ public class ConsoleRunner implements CommandLineRunner {
 
     // Result 관리 - 이름 조회
     private void getResult() {
+
         System.out.print("검색할 검사 결과 입력: ");
-        int resultId = sc.nextInt();
+        ResultQC getResult = qcDao.getResult(sc.nextInt());
         sc.nextLine();
 
         ResultQC result = null;
@@ -1019,6 +1017,7 @@ public class ConsoleRunner implements CommandLineRunner {
             System.out.println("해당 이름으로 등록된 검사 결과가 없습니다.");
             return;
         }
+        System.out.println(getResult);
     }
 
 }
