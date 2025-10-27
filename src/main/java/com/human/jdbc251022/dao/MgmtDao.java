@@ -258,10 +258,10 @@ public class MgmtDao {
     }
 
     // 작업 실적 수정 (작업 시작 및 종료 시간)
-    public boolean updateWorkResult(int workId, String result, LocalDateTime endTime) {
-        String sql = "UPDATE Work SET RESULT = ?, END_TIME = ? WHERE WORK_ID = ?";
+    public boolean updateWorkResult(int workId, String worker, LocalDate endTime) {
+        String sql = "UPDATE Workorder SET worker = ?, END_TIME = ? WHERE workorder_ID = ?";
         try {
-            int updated = jdbcTemplate.update(sql, result, endTime, workId);
+            int updated = jdbcTemplate.update(sql, worker, java.sql.Date.valueOf(endTime), workId);
             return updated > 0; // 수정되면 = true
         } catch (Exception e) {
             log.error("작업 실적 수정 실패 : {}", e.getMessage());
@@ -271,7 +271,7 @@ public class MgmtDao {
 
     // 작업 삭제
     public boolean deleteWork(int workId) {
-        String sql = "DELETE FROM Work WHERE WORK_ID = ?";
+        String sql = "DELETE FROM workorder WHERE workorder_id = ?";
         try {
             int r = jdbcTemplate.update(sql, workId);
             return r > 0;

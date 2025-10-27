@@ -318,9 +318,9 @@ public class ConsoleRunner implements CommandLineRunner {
         System.out.print("\n수정할 작업 ID ▶ ");
         int id = 0; sc.nextInt();
         sc.nextLine();
-        System.out.print("결과(완료/취소/진행중): "); String res = sc.nextLine();
-        System.out.print("종료시간(예:2025-10-24T18:00): ");
-        LocalDateTime end = LocalDateTime.parse(sc.nextLine());
+        System.out.print("작업자: "); String res = sc.nextLine();
+        System.out.print("종료시간(예:2025-10-24): ");
+        LocalDate end = LocalDate.parse(sc.nextLine());
         boolean ok = mgmtDao.updateWorkResult(id, res, end);
         System.out.println(ok ? "수정 완료" : "수정 실패");
     }
