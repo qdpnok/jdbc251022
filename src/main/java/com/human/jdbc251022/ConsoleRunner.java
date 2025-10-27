@@ -1004,12 +1004,9 @@ public class ConsoleRunner implements CommandLineRunner {
     private void gettestQc() {
 
         System.out.print("검색할 검사 결과 입력: ");
-        TestQc gettestQc = qcDao.gettestQc(sc.nextInt());
-        sc.nextLine();
+        TestQc gettestQc = qcDao.gettestQc(sc.nextLine());
 
-        TestQc result = null;
-
-        if(result == null) {
+        if(gettestQc == null) {
             System.out.println("해당 번호로 등록된 검사 결과가 없습니다.");
             return;
         }

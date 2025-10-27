@@ -207,8 +207,8 @@ public class QCDao {
     }
 
     // QC 결과 조회 (단건)
-    public TestQc gettestQc(int tester) {
-        String query = "SELECT * FROM QC WHERE TESTER = ?";
+    public TestQc gettestQc(String qcId) {
+        String query = "SELECT TEST_ITEM, STATUS, PASS_FAIL, QC_DATE, TESTER FROM QC WHERE QC_ID = ?";
         try {
             return jdbcTemplate.queryForObject(query,
                     (rs, rowNum) -> new TestQc(
@@ -216,8 +216,7 @@ public class QCDao {
                             rs.getString("STATUS"),
                             rs.getString("PASS_FAIL"),
                             rs.getDate("QC_DATE"),
-                            rs.getInt("TESTER")
-                    ),tester);
+                            rs.getInt("TESTER")),qcId);
         } catch (Exception e) {
             log.error("QC결과 조회 실패: {}", e.getMessage());
             return null;
