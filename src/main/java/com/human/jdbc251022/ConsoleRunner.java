@@ -17,10 +17,6 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -719,7 +715,7 @@ public class ConsoleRunner implements CommandLineRunner {
         switch(sel) {
             case 1: QCBatchIn(); break;
             case 2: sampleBatchIn(); break;
-            case 3: resultBatchIn(); break;
+            case 3: testQCBatchIn(); break;
         }
     }
 
@@ -978,7 +974,7 @@ public class ConsoleRunner implements CommandLineRunner {
     }
 
     // Result 관리 메뉴
-    private void resultBatchIn() {
+    private void testQCBatchIn() {
         System.out.println("===== 검사 결과 조회 =====");
         System.out.println("[1]전체 조회");
         System.out.println("[2]이름으로 검색");
@@ -987,36 +983,36 @@ public class ConsoleRunner implements CommandLineRunner {
         sc.nextLine();
 
         switch(sel) {
-            case 1: resultList(); break;
-            case 2: getResult(); break;
+            case 1: testQCList(); break;
+            case 2: gettestQc(); break;
 
         }
     }
 
     // Result 관리 - 전체 조회
-    private void resultList() {
-        List<ResultQC> resultList = qcDao.resultList();
-        if(resultList.isEmpty()) {
+    private void testQCList() {
+        List<TestQc> testQCList = qcDao.testQCList();
+        if(testQCList.isEmpty()) {
             System.out.println("등록된 검사 결과가 없습니다.");
             return;
         }
-        for(ResultQC e : resultList) System.out.println(e);
+        for(TestQc e : testQCList) System.out.println(e);
     }
 
     // Result 관리 - 이름 조회
-    private void getResult() {
+    private void gettestQc() {
 
         System.out.print("검색할 검사 결과 입력: ");
-        ResultQC getResult = qcDao.getResult(sc.nextInt());
+        TestQc gettestQc = qcDao.gettestQc(sc.nextInt());
         sc.nextLine();
 
-        ResultQC result = null;
+        TestQc result = null;
 
         if(result == null) {
-            System.out.println("해당 이름으로 등록된 검사 결과가 없습니다.");
+            System.out.println("해당 번호로 등록된 검사 결과가 없습니다.");
             return;
         }
-        System.out.println(getResult);
+        System.out.println(gettestQc);
     }
 
 }
